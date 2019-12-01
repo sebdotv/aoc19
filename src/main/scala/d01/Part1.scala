@@ -7,7 +7,7 @@ import cats.implicits._
 import fs2._
 import mouse.all._
 
-object Main extends IOApp {
+object Part1 extends IOApp {
   // to find the fuel required for a module, take its mass, divide by three, round down, and subtract 2
   def massToFuel(m: Long) = m / 3 - 2
 
