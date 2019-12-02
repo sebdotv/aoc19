@@ -1,17 +1,12 @@
 package d02
 
-import cats.{Show, derived}
-import cats.implicits._
-
 import aoc._
+import cats.implicits._
+import cats.{Show, derived}
+
 import scala.annotation.tailrec
 
 object Part1 {
-  def result(line: String, modifier: Program => Program = identity): Program =
-    modifier(
-      parse(line)
-    ).run
-
   def parse(line: String): Program =
     Program(line.split(",").map(_.toInt))
 
@@ -49,6 +44,9 @@ object Part1 {
       if (halted) this
       else step.run
   }
-  implicit val showProgram: Show[Program] = derived.semi.show
+  implicit val showProgram: Show[Program] = {
+    implicitly[Show[Array[Int]]] // this is required to help IntelliJ not delete cats/aoc imports
+    derived.semi.show
+  }
 
 }

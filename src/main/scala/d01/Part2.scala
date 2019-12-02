@@ -3,7 +3,7 @@ package d01
 import scala.annotation.tailrec
 
 object Part2 {
-  def totalFuel(m: Long) = {
+  def totalFuel(m: Long): Long = {
     @tailrec
     def it(m: Long, acc: Long): Long =
       m match {
@@ -15,6 +15,6 @@ object Part2 {
     it(m, 0)
   }
 
-  def result(lines: List[String]) =
+  def result(lines: List[String]): Long =
     lines.map(_.toLong).map(totalFuel).sum
 }
