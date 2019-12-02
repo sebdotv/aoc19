@@ -1,24 +1,19 @@
 package d02
 
-import cats.implicits._
-import cats.data.State
-import cats.effect.IO
 import cats.{Show, derived}
+import cats.implicits._
 
 import aoc._
-
 import scala.annotation.tailrec
 
-object d02 extends AocApp("input/02.txt") {
-  override def program(lines: List[String]) =
-    lines match {
-      case List(line) =>
-        stepUntilHalted(
-          Program(line.split(",").map(_.toInt))
-            .setMemory(1, 12)
-            .setMemory(2, 2)
-        ).getMemory(0)
-    }
+object Part1 {
+  def result(line: String, modifier: Program => Program = identity): Program =
+    modifier(
+      parse(line)
+    ).run
+
+  def parse(line: String): Program =
+    Program(line.split(",").map(_.toInt))
 
   case class Program(
       memory: Array[Int],
@@ -32,6 +27,8 @@ object d02 extends AocApp("input/02.txt") {
       updated(position) = value
       copy(memory = updated)
     }
+    def patch(noun: Int, verb: Int): Program =
+      setMemory(1, noun).setMemory(2, verb)
 
     def step: Program = {
       assert(!halted)
@@ -46,15 +43,12 @@ object d02 extends AocApp("input/02.txt") {
           copy(halted = true)
       }
     }
+
+    @tailrec
+    final def run: Program =
+      if (halted) this
+      else step.run
   }
   implicit val showProgram: Show[Program] = derived.semi.show
 
-  val initialProgram = Program(Array(1, 9, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50))
-  @tailrec
-  def stepUntilHalted(p: Program): Program =
-    if (p.halted) p
-    else stepUntilHalted(p.step)
-
-  val endProgram = stepUntilHalted(initialProgram)
-  println(endProgram.show)
 }

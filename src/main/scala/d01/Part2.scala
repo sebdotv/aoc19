@@ -1,10 +1,8 @@
 package d01
 
-import aoc._
-
 import scala.annotation.tailrec
 
-object Part2 extends AocApp("input/01.txt") {
+object Part2 {
   def totalFuel(m: Long) = {
     @tailrec
     def it(m: Long, acc: Long): Long =
@@ -17,6 +15,6 @@ object Part2 extends AocApp("input/01.txt") {
     it(m, 0)
   }
 
-  override def program(lines: List[String]) =
+  def result(lines: List[String]) =
     lines.map(_.toLong).map(totalFuel).sum
 }
