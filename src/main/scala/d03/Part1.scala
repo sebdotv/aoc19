@@ -19,7 +19,7 @@ object Part1 {
         case Nil => acc
         case m :: tail =>
           val trace = m(pos)
-          it(tail, trace.head, trace ++: acc)
+          it(tail, trace.head, trace ::: acc)
       }
     }
     it(p, start, Nil)
