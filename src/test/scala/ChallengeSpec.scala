@@ -1,3 +1,4 @@
+import TestUtils._
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must._
 
@@ -38,7 +39,4 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
     // p2 input
     d03.Part2.result(path1, path2) mustBe 14012
   }
-
-  private def load(filename: String)     = aoc.load(filename).unsafeRunSync()
-  private def loadLine(filename: String) = aoc.loadLine(filename).unsafeRunSync()
 }
