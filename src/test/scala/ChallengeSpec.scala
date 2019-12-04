@@ -39,4 +39,17 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
     // p2 input
     d03.Part2.result(path1, path2) mustBe 14012
   }
+
+  it should "do d04" in {
+    // examples
+    d04.Part1.isValid(122345) mustBe true
+    d04.Part1.isValid(111123) mustBe true
+    d04.Part1.isValid(135679) mustBe false
+    d04.Part1.isValid(111111) mustBe true
+    d04.Part1.isValid(223450) mustBe false
+    d04.Part1.isValid(123789) mustBe false
+    //
+    val input = d04.Part1.parseRange("284639-748759")
+    d04.Part1.countValid(input) mustBe 895
+  }
 }
