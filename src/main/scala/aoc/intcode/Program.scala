@@ -1,6 +1,6 @@
 package aoc.intcode
 
-import aoc._
+import aoc.implicits._
 import cats.implicits._
 import cats.{Show, derived}
 
@@ -22,21 +22,39 @@ case class Program(
     copy(memory = updated)
   }
 
+  /** @param param 1-based */
+  private def resolveParam(param: Int, parameterModes: Array[Int]): Int = {
+    val value = memory(ip + param)
+    parameterModes(param - 1) match {
+      case 0 => // position mode
+        memory(value)
+      case 1 => // immediate mode
+        value
+    }
+  }
+
   def step: Program = {
     assert(!halted)
-    memory(ip) match {
+    val ic = InstructionCode.parse(memory(ip))
+    ic.opcode match {
       case 1 => // ADD
-        write(memory(ip + 3), memory(memory(ip + 1)) + memory(memory(ip + 2)))
+        assert(ic.parameterModes(2) === 0)
+        write(memory(ip + 3), resolveParam(1, ic.parameterModes) + resolveParam(2, ic.parameterModes))
           .copy(ip = ip + 4)
       case 2 => // MUL
-        write(memory(ip + 3), memory(memory(ip + 1)) * memory(memory(ip + 2)))
+        assert(ic.parameterModes(2) === 0)
+        write(memory(ip + 3), resolveParam(1, ic.parameterModes) * resolveParam(2, ic.parameterModes))
           .copy(ip = ip + 4)
       case 3 => // IN
+        assert(ic.parameterModes === Array(0, 0, 0))
         write(memory(ip + 1), input.head)
           .copy(ip = ip + 2, input = input.tail)
       case 4 => // OUT
-        copy(ip = ip + 2, output = read(memory(ip + 1)) :: output)
+        assert(ic.parameterModes(1) === 0)
+        assert(ic.parameterModes(2) === 0)
+        copy(ip = ip + 2, output = resolveParam(1, ic.parameterModes) :: output)
       case 99 => // HLT
+        assert(ic.parameterModes === Array(0, 0, 0))
         copy(halted = true)
     }
   }

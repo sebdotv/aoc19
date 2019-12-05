@@ -1,7 +1,8 @@
 import TestUtils._
-import aoc.intcode.Program
+import aoc.intcode._
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must._
+import org.scalatest.Inside.inside
 
 class ChallengeSpec extends AnyFlatSpec with Matchers {
   "lazy coder" should "do d01" in {
@@ -65,8 +66,17 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
   }
 
   it should "do d05" in {
+    import d05._
     // p1 examples
     Program.parse("3,0,4,0,99").runOn(List(12345)) mustBe List(12345)
+    inside(InstructionCode.parse(1002)) {
+      case InstructionCode(opcode, parameterModes) =>
+        opcode mustBe 2
+        parameterModes mustBe Array(0, 1, 0)
+    }
+    Program.parse("1002,4,3,4,33").run.memory mustBe Array(1002, 4, 3, 4, 99)
+    // p1 input
+    Part1.result(loadLine("input/05.txt")) mustBe List(6069343, 0, 0, 0, 0, 0, 0, 0, 0, 0)
   }
 
 }
