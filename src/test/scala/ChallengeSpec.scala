@@ -1,4 +1,5 @@
 import TestUtils._
+import aoc.intcode.Program
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must._
 
@@ -19,9 +20,9 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
   it should "do d02" in {
     import d02._
     // example
-    Part1.parse("1,9,10,3,2,3,11,0,99,30,40,50").run.memory mustBe Array(3500, 9, 10, 70, 2, 3, 11, 0, 99, 30, 40, 50)
+    Program.parse("1,9,10,3,2,3,11,0,99,30,40,50").run.memory mustBe Array(3500, 9, 10, 70, 2, 3, 11, 0, 99, 30, 40, 50)
     // input
-    val input = Part1.parse(loadLine("input/02.txt"))
+    val input = Program.parse(loadLine("input/02.txt"))
     input.patch(noun = 12, verb = 2).run.getMemory(0) mustBe 3516593
     Part2.result(input) mustBe 7749
   }

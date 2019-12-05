@@ -1,7 +1,7 @@
 package d02
 
+import aoc.intcode.Program
 import cats.implicits._
-import d02.Part1.Program
 
 object Part2 {
   def result(p: Program): Int = {
