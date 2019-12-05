@@ -23,7 +23,7 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
     Program.parse("1,9,10,3,2,3,11,0,99,30,40,50").run.memory mustBe Array(3500, 9, 10, 70, 2, 3, 11, 0, 99, 30, 40, 50)
     // input
     val input = Program.parse(loadLine("input/02.txt"))
-    input.patch(noun = 12, verb = 2).run.getMemory(0) mustBe 3516593
+    Part1.patch(input, noun = 12, verb = 2).run.read(0) mustBe 3516593
     Part2.result(input) mustBe 7749
   }
 
@@ -63,4 +63,10 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
     // p2 input
     input.count(Part2.isValid) mustBe 591
   }
+
+  it should "do d05" in {
+    // p1 examples
+    Program.parse("3,0,4,0,99").runOn(List(12345)) mustBe List(12345)
+  }
+
 }

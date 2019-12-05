@@ -9,7 +9,7 @@ object Part2 {
       for {
         noun <- (0 to 99).toStream
         verb <- (0 to 99).toStream
-        if p.patch(noun = noun, verb = verb).run.getMemory(0) === 19690720
+        if Part1.patch(p, noun = noun, verb = verb).run.read(0) === 19690720
       } yield 100 * noun + verb
     resultS.head
   }
