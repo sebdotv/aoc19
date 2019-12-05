@@ -13,7 +13,8 @@ case class Program(
     ip: Int = 0,
     halted: Boolean = false,
     input: List[Int] = Nil,
-    output: List[Int] = Nil
+    output: List[Int] = Nil,
+    debug: Boolean = false
 ) {
   def r(param: Param): Int =
     param match {
@@ -93,7 +94,10 @@ case class Program(
         case 99 =>
           HLT.some
       }
-    instructionO.getOrElse(throw new RuntimeException).apply(this)
+    val instruction = instructionO.getOrElse(throw new RuntimeException)
+    if (debug)
+      println(f"$ip%5s $instruction")
+    instruction.apply(this)
   }
 
   @tailrec
