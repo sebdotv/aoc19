@@ -64,38 +64,33 @@ case class Program(
     val ic = InstructionCode.parse(memory(ip))
     val instructionO =
       ic.opcode match {
-        case 1 => // ADD
-          param(3, ic) match {
-            case dest: PositionParam => ADD(param(1, ic), param(2, ic), dest).some
-            case _                   => None
+        case 1 =>
+          param(3, ic).some.collect {
+            case dest: PositionParam => ADD(param(1, ic), param(2, ic), dest)
           }
-        case 2 => // MUL
-          param(3, ic) match {
-            case dest: PositionParam => MUL(param(1, ic), param(2, ic), dest).some
-            case _                   => None
+        case 2 =>
+          param(3, ic).some.collect {
+            case dest: PositionParam => MUL(param(1, ic), param(2, ic), dest)
           }
-        case 3 => // IN
-          param(1, ic) match {
-            case dest: PositionParam => IN(dest).some
-            case _                   => None
+        case 3 =>
+          param(1, ic).some.collect {
+            case dest: PositionParam => IN(dest)
           }
-        case 4 => // OUT
+        case 4 =>
           OUT(param(1, ic)).some
-        case 5 => // JNZ
+        case 5 =>
           JNZ(param(1, ic), param(2, ic)).some
-        case 6 => // JZ
+        case 6 =>
           JZ(param(1, ic), param(2, ic)).some
-        case 7 => // LT
-          param(3, ic) match {
-            case dest: PositionParam => LT(param(1, ic), param(2, ic), dest).some
-            case _                   => None
+        case 7 =>
+          param(3, ic).some.collect {
+            case dest: PositionParam => LT(param(1, ic), param(2, ic), dest)
           }
-        case 8 => // EQ
-          param(3, ic) match {
-            case dest: PositionParam => EQ(param(1, ic), param(2, ic), dest).some
-            case _                   => None
+        case 8 =>
+          param(3, ic).some.collect {
+            case dest: PositionParam => EQ(param(1, ic), param(2, ic), dest)
           }
-        case 99 => // HLT
+        case 99 =>
           HLT.some
       }
     instructionO.getOrElse(throw new RuntimeException).apply(this)
