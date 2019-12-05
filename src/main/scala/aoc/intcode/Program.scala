@@ -1,6 +1,8 @@
 package aoc.intcode
 
 import aoc.implicits._
+import aoc.intcode.Instruction._
+import aoc.intcode.Param._
 import cats.implicits._
 import cats.{Show, derived}
 
@@ -13,6 +15,30 @@ case class Program(
     input: List[Int] = Nil,
     output: List[Int] = Nil
 ) {
+  def r(param: Param): Int =
+    param match {
+      case PositionParam(position) => memory(position)
+      case ImmediateParam(value)   => value
+    }
+  def w(dest: PositionParam, value: Int): Program =
+    write(dest.position, value)
+  def in(dest: PositionParam): Program =
+    w(dest, input.head).copy(input = input.tail)
+  def out(value: Int): Program =
+    copy(output = value :: output)
+  def move(value: Int): Program = {
+    require(value > 0)
+    copy(ip = ip + value)
+  }
+  def jump(value: Int): Program = {
+    require(value >= 0)
+    copy(ip = value)
+  }
+  def halt: Program = {
+    require(!halted)
+    copy(halted = true)
+  }
+
   def read(position: Int): Int =
     memory(position)
 
@@ -23,66 +49,56 @@ case class Program(
   }
 
   /** @param param 1-based */
-  private def resolveParam(param: Int, parameterModes: Array[Int]): Int = {
+  private def param(param: Int, ic: InstructionCode): Param = {
     val value = memory(ip + param)
-    parameterModes(param - 1) match {
+    ic.parameterModes(param - 1) match {
       case 0 => // position mode
-        memory(value)
+        PositionParam(value)
       case 1 => // immediate mode
-        value
+        ImmediateParam(value)
     }
   }
 
   def step: Program = {
     assert(!halted)
     val ic = InstructionCode.parse(memory(ip))
-    ic.opcode match {
-      case 1 => // ADD
-        assert(ic.parameterModes(2) === 0)
-        write(memory(ip + 3), resolveParam(1, ic.parameterModes) + resolveParam(2, ic.parameterModes))
-          .copy(ip = ip + 4)
-      case 2 => // MUL
-        assert(ic.parameterModes(2) === 0)
-        write(memory(ip + 3), resolveParam(1, ic.parameterModes) * resolveParam(2, ic.parameterModes))
-          .copy(ip = ip + 4)
-      case 3 => // IN
-        assert(ic.parameterModes === Array(0, 0, 0))
-        write(memory(ip + 1), input.head)
-          .copy(ip = ip + 2, input = input.tail)
-      case 4 => // OUT
-        assert(ic.parameterModes(1) === 0)
-        assert(ic.parameterModes(2) === 0)
-        copy(ip = ip + 2, output = resolveParam(1, ic.parameterModes) :: output)
-      case 5 => // JNZ
-        assert(ic.parameterModes(2) === 0)
-        resolveParam(1, ic.parameterModes) match {
-          case 0 => copy(ip = ip + 3) // nop
-          case _ => copy(ip = resolveParam(2, ic.parameterModes))
-        }
-      case 6 => // JZ
-        assert(ic.parameterModes(2) === 0)
-        resolveParam(1, ic.parameterModes) match {
-          case 0 => copy(ip = resolveParam(2, ic.parameterModes))
-          case _ => copy(ip = ip + 3) // nop
-        }
-      case 7 => // LT
-        assert(ic.parameterModes(2) === 0)
-        write(
-          memory(ip + 3),
-          if (resolveParam(1, ic.parameterModes) < resolveParam(2, ic.parameterModes)) 1
-          else 0
-        ).copy(ip = ip + 4)
-      case 8 => // EQ
-        assert(ic.parameterModes(2) === 0)
-        write(
-          memory(ip + 3),
-          if (resolveParam(1, ic.parameterModes) === resolveParam(2, ic.parameterModes)) 1
-          else 0
-        ).copy(ip = ip + 4)
-      case 99 => // HLT
-        assert(ic.parameterModes === Array(0, 0, 0))
-        copy(halted = true)
-    }
+    val instructionO =
+      ic.opcode match {
+        case 1 => // ADD
+          param(3, ic) match {
+            case dest: PositionParam => ADD(param(1, ic), param(2, ic), dest).some
+            case _                   => None
+          }
+        case 2 => // MUL
+          param(3, ic) match {
+            case dest: PositionParam => MUL(param(1, ic), param(2, ic), dest).some
+            case _                   => None
+          }
+        case 3 => // IN
+          param(1, ic) match {
+            case dest: PositionParam => IN(dest).some
+            case _                   => None
+          }
+        case 4 => // OUT
+          OUT(param(1, ic)).some
+        case 5 => // JNZ
+          JNZ(param(1, ic), param(2, ic)).some
+        case 6 => // JZ
+          JZ(param(1, ic), param(2, ic)).some
+        case 7 => // LT
+          param(3, ic) match {
+            case dest: PositionParam => LT(param(1, ic), param(2, ic), dest).some
+            case _                   => None
+          }
+        case 8 => // EQ
+          param(3, ic) match {
+            case dest: PositionParam => EQ(param(1, ic), param(2, ic), dest).some
+            case _                   => None
+          }
+        case 99 => // HLT
+          HLT.some
+      }
+    instructionO.getOrElse(throw new RuntimeException).apply(this)
   }
 
   @tailrec
