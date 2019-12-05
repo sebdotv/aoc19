@@ -53,7 +53,7 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
     Part1.isValid(223450) mustBe false
     Part1.isValid(123789) mustBe false
     // p1 input
-    val input = Part1.parseRange("284639-748759")
+    val input = Part1.parseRange(loadLine("input/04.txt"))
     input.count(Part1.isValid) mustBe 895
     // p2 examples
     Part2.isValid(112233) mustBe true
