@@ -53,6 +53,32 @@ case class Program(
         assert(ic.parameterModes(1) === 0)
         assert(ic.parameterModes(2) === 0)
         copy(ip = ip + 2, output = resolveParam(1, ic.parameterModes) :: output)
+      case 5 => // JNZ
+        assert(ic.parameterModes(2) === 0)
+        resolveParam(1, ic.parameterModes) match {
+          case 0 => copy(ip = ip + 3) // nop
+          case _ => copy(ip = resolveParam(2, ic.parameterModes))
+        }
+      case 6 => // JZ
+        assert(ic.parameterModes(2) === 0)
+        resolveParam(1, ic.parameterModes) match {
+          case 0 => copy(ip = resolveParam(2, ic.parameterModes))
+          case _ => copy(ip = ip + 3) // nop
+        }
+      case 7 => // LT
+        assert(ic.parameterModes(2) === 0)
+        write(
+          memory(ip + 3),
+          if (resolveParam(1, ic.parameterModes) < resolveParam(2, ic.parameterModes)) 1
+          else 0
+        ).copy(ip = ip + 4)
+      case 8 => // EQ
+        assert(ic.parameterModes(2) === 0)
+        write(
+          memory(ip + 3),
+          if (resolveParam(1, ic.parameterModes) === resolveParam(2, ic.parameterModes)) 1
+          else 0
+        ).copy(ip = ip + 4)
       case 99 => // HLT
         assert(ic.parameterModes === Array(0, 0, 0))
         copy(halted = true)
@@ -66,6 +92,11 @@ case class Program(
 
   def runOn(input: List[Int]): List[Int] =
     copy(input = input).run.output
+
+  def runFn(input: Int): Int =
+    runOn(List(input)) match {
+      case List(a) => a
+    }
 }
 
 object Program {

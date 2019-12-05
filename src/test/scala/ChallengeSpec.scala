@@ -68,7 +68,7 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
   it should "do d05" in {
     import d05._
     // p1 examples
-    Program.parse("3,0,4,0,99").runOn(List(12345)) mustBe List(12345)
+    Program.parse("3,0,4,0,99").runFn(12345) mustBe 12345
     inside(InstructionCode.parse(1002)) {
       case InstructionCode(opcode, parameterModes) =>
         opcode mustBe 2
@@ -76,7 +76,56 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
     }
     Program.parse("1002,4,3,4,33").run.memory mustBe Array(1002, 4, 3, 4, 99)
     // p1 input
-    Part1.result(loadLine("input/05.txt")) mustBe List(6069343, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+    val input = Program.parse(loadLine("input/05.txt"))
+    Part1.result(input) mustBe List(6069343, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+    // p2 examples
+    Program.parse("3,9,8,9,10,9,4,9,99,-1,8") match {
+      case p =>
+        // pos_eq
+        p.runFn(7) mustBe 0
+        p.runFn(8) mustBe 1
+    }
+    Program.parse("3,9,7,9,10,9,4,9,99,-1,8") match {
+      case p =>
+        // pos_lt
+        p.runFn(7) mustBe 1
+        p.runFn(8) mustBe 0
+    }
+    Program.parse("3,3,1108,-1,8,3,4,3,99") match {
+      case p =>
+        // imm_eq
+        p.runFn(7) mustBe 0
+        p.runFn(8) mustBe 1
+    }
+    Program.parse("3,3,1107,-1,8,3,4,3,99") match {
+      case p =>
+        // imm_lt
+        p.runFn(7) mustBe 1
+        p.runFn(8) mustBe 0
+    }
+    Program.parse("3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9") match {
+      case p =>
+        // pos_jmp
+        p.runFn(0) mustBe 0
+        p.runFn(1) mustBe 1
+    }
+    Program.parse("3,3,1105,-1,9,1101,0,0,12,4,12,99,1") match {
+      case p =>
+        // imm_jmp
+        p.runFn(0) mustBe 0
+        p.runFn(1) mustBe 1
+    }
+    // larger example
+    Program.parse(
+      "3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99"
+    ) match {
+      case p =>
+        p.runFn(7) mustBe 999
+        p.runFn(8) mustBe 1000
+        p.runFn(9) mustBe 1001
+    }
+    // p2 input
+    Part2.result(input) mustBe 3188550
   }
 
 }
