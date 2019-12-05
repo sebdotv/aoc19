@@ -27,13 +27,13 @@ case class Program(
     w(dest, input.head).copy(input = input.tail)
   def out(value: Int): Program =
     copy(output = value :: output)
-  def move(value: Int): Program = {
-    require(value > 0)
-    copy(ip = ip + value)
+  def move(n: Int): Program = {
+    require(n > 0)
+    copy(ip = ip + n)
   }
-  def jump(value: Int): Program = {
-    require(value >= 0)
-    copy(ip = value)
+  def jump(position: Int): Program = {
+    require(position >= 0)
+    copy(ip = position)
   }
   def halt: Program = {
     require(!halted)
