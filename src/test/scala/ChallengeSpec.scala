@@ -128,4 +128,28 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
     Part2.result(input) mustBe 3188550
   }
 
+  it should "do d06" in {
+    import d06._
+    // examples
+    val testInput = """
+      |COM)B
+      |B)C
+      |C)D
+      |D)E
+      |E)F
+      |B)G
+      |G)H
+      |D)I
+      |E)J
+      |J)K
+      |K)L
+      |""".stripMargin.trim.split("\n").toList
+    val testOD    = new Part1.OrbitDag(testInput)
+    testOD.orbits("D") mustBe 3
+    testOD.orbits("L") mustBe 7
+    testOD.orbits("COM") mustBe 0
+    testOD.totalOrbits mustBe 42
+    new Part1.OrbitDag(load("input/06.txt")).totalOrbits mustBe 251208
+  }
+
 }
