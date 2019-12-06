@@ -18,12 +18,15 @@ object Part1 {
       E(from = V(b), to = V(a))
     }).toSet
     val vertices: Set[V] = (for (e <- edges) yield Set(e.from, e.to)).flatten
-    def outgoing(from: V): Option[E] =
+    private def findOutgoing(from: V): Option[E] =
       edges.filter(_.from === from).toList match {
         case List(a) => Some(a)
         case Nil     => None
         // assume max 1 outgoing edge for now
       }
+    val outgoing: Map[V, E] =
+      (for (v <- vertices.toList) yield findOutgoing(v).map(e => v -> e)).flatten.toMap
+
     def orbits(vertexName: String): Int =
       orbitCount(V(vertexName))
     def orbitCount(v: V): Int =
@@ -32,7 +35,7 @@ object Part1 {
     def pathToRoot(v: V): List[V] = {
       @tailrec
       def it(v: V, acc: List[V]): List[V] =
-        outgoing(v) match {
+        outgoing.get(v) match {
           case Some(e) => it(e.to, e.to :: acc)
           case None    => acc
         }
