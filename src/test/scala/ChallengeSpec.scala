@@ -129,9 +129,10 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
   }
 
   it should "do d06" in {
+    def split(s: String) = s.trim.split("\n").toList
     import d06._
-    // examples
-    val testInput = """
+    // p1 examples
+    val testInput1 = split("""
       |COM)B
       |B)C
       |C)D
@@ -143,13 +144,34 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
       |E)J
       |J)K
       |K)L
-      |""".stripMargin.trim.split("\n").toList
-    val testOD    = new Part1.OrbitDag(testInput)
-    testOD.orbits("D") mustBe 3
-    testOD.orbits("L") mustBe 7
-    testOD.orbits("COM") mustBe 0
-    testOD.totalOrbits mustBe 42
-    new Part1.OrbitDag(load("input/06.txt")).totalOrbits mustBe 251208
+      |""".stripMargin)
+    val testOD1    = new Part1.OrbitDag(testInput1)
+    testOD1.orbits("D") mustBe 3
+    testOD1.orbits("L") mustBe 7
+    testOD1.orbits("COM") mustBe 0
+    testOD1.totalOrbits mustBe 42
+    // p1 input
+    val inputOD = new Part1.OrbitDag(load("input/06.txt"))
+    inputOD.totalOrbits mustBe 251208
+    // p2 examples
+    val testInput2 = split("""
+        |COM)B
+        |B)C
+        |C)D
+        |D)E
+        |E)F
+        |B)G
+        |G)H
+        |D)I
+        |E)J
+        |J)K
+        |K)L
+        |K)YOU
+        |I)SAN
+        |""".stripMargin)
+    Part2.minTransfers(new Part1.OrbitDag(testInput2), "YOU", "SAN") mustBe 4
+    // p2 input
+    Part2.minTransfers(inputOD, "YOU", "SAN") mustBe 397
   }
 
 }
