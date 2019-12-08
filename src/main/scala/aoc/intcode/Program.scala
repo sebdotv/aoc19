@@ -26,12 +26,19 @@ case class Program(
     write(dest.position, value)
   def in(dest: PositionParam): Program =
     input match {
-      case h :: t => w(dest, h).copy(input = t)
-      case Nil    => setState(Blocked)
+      case h :: t =>
+        if (debug) println(s"IN> $h")
+        w(dest, h).copy(input = t)
+      case Nil =>
+        if (debug) println("IN> no input, blocked")
+        setState(Blocked)
     }
 
-  def out(value: Int): Program =
+  def out(value: Int): Program = {
+    if (debug) println(s"OUT> $value")
     copy(output = value :: output)
+  }
+
   def move(n: Int): Program = {
     require(n > 0)
     copy(ip = ip + n)
@@ -123,8 +130,14 @@ case class Program(
       case Running => step.run
     }
 
+  def feed(i: Int): Program =
+    copy(input = i :: input, state = state match {
+      case Blocked => Running
+      case other   => other
+    })
+
   def runOn(input: List[Int]): List[Int] =
-    copy(input = input).run.output
+    input.foldRight(this) { case (i, p) => p.feed(i) }.run.output.reverse
 
   def runFn(input: Int): Int =
     runOn(List(input)) match {

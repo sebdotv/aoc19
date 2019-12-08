@@ -77,7 +77,7 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
     Program.parse("1002,4,3,4,33").run.memory mustBe Array(1002, 4, 3, 4, 99)
     // p1 input
     val input = Program.parse(loadLine("input/05.txt"))
-    Part1.result(input) mustBe List(6069343, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+    Part1.result(input) mustBe List(0, 0, 0, 0, 0, 0, 0, 0, 0, 6069343)
     // p2 examples
     Program.parse("3,9,8,9,10,9,4,9,99,-1,8") match {
       case p =>
