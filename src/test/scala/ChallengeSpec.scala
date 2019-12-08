@@ -1,8 +1,8 @@
 import TestUtils._
 import aoc.intcode._
+import org.scalatest.Inside.inside
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must._
-import org.scalatest.Inside.inside
 
 class ChallengeSpec extends AnyFlatSpec with Matchers {
   "lazy coder" should "do d01" in {
@@ -195,4 +195,26 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
     Part2.result(input) mustBe ((List(7, 6, 5, 8, 9), 36384144))
   }
 
+  it should "do d08" in {
+    import d08._
+    // p1 example
+    inside(Part1.Image.parse("123456789012", 3, 2)) {
+      case img =>
+        img.w mustBe 3
+        img.h mustBe 2
+        img.layers mustBe 2
+        img.pixel(0, 0, 0) mustBe 1
+        img.pixel(1, 0, 0) mustBe 2
+        img.pixel(0, 1, 0) mustBe 4
+        img.pixel(0, 0, 1) mustBe 7
+        img.pixel(1, 0, 1) mustBe 8
+        img.pixel(0, 1, 1) mustBe 0
+        img.layer(0).getPixels mustBe List(1, 2, 3, 4, 5, 6)
+        img.layer(1).getPixels mustBe List(7, 8, 9, 0, 1, 2)
+    }
+    // p1 input
+    val input = loadLine("input/08.txt")
+    val img   = Part1.Image.parse(input, 25, 6)
+    Part1.result(img) mustBe 2125
+  }
 }
