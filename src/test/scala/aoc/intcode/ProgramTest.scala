@@ -6,7 +6,8 @@ import org.scalatest.matchers.must._
 
 class ProgramSpec extends AnyFlatSpec with Matchers {
   "runOn" should "preserve input order" in {
-    Program(Array(3, 0, 4, 0, 3, 0, 4, 0, 99)).runOn(List(1, 2)) mustBe List(1, 2)
+    // first input value is output once, second input value is output twice
+    Program(Array(3, 0, 4, 0, 3, 0, 4, 0, 4, 0, 99)).runOn(List(1, 2)) mustBe List(1, 2, 2)
   }
   it should "unblock programs" in {
     val p = Program(Array(3, 0, 4, 0, 99)).run

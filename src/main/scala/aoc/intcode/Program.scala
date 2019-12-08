@@ -143,7 +143,7 @@ case class Program(
       .getOrElse((None, this))
 
   def runOn(input: List[Int]): List[Int] =
-    input.foldRight(this) { case (i, p) => p.feed(i) }.run.output.toList
+    input.foldLeft(this) { case (p, i) => p.feed(i) }.run.output.toList
 
   def runFn(input: Int): Int =
     runOn(List(input)) match {
