@@ -8,7 +8,7 @@ object Part1 {
 
   def result(input: String, phases: List[Int]): Int = {
     val p = Program.parse(input)
-    phases.reverse.foldRight(0) {
+    phases.foldLeft(0) {
       case (phase, input) =>
         val List(output) = p.runOn(List(phase, input))
         output

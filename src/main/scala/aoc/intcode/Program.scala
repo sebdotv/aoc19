@@ -8,13 +8,14 @@ import cats.implicits._
 import cats.{Eq, Show, derived}
 
 import scala.annotation.tailrec
+import scala.collection.immutable.Queue
 
 case class Program(
     memory: Array[Int],
     ip: Int = 0,
     state: Program.State = Running,
-    input: List[Int] = Nil,
-    output: List[Int] = Nil,
+    input: Queue[Int] = Queue.empty,
+    output: Queue[Int] = Queue.empty,
     debug: Boolean = false
 ) {
   def r(param: Param): Int =
@@ -25,18 +26,18 @@ case class Program(
   def w(dest: PositionParam, value: Int): Program =
     write(dest.position, value)
   def in(dest: PositionParam): Program =
-    input match {
-      case h :: t =>
+    input.dequeueOption match {
+      case Some((h, t)) =>
         if (debug) println(s"IN> $h")
         w(dest, h).copy(input = t)
-      case Nil =>
+      case None =>
         if (debug) println("IN> no input, blocked")
         setState(Blocked)
     }
 
   def out(value: Int): Program = {
     if (debug) println(s"OUT> $value")
-    copy(output = value :: output)
+    copy(output = output.enqueue(value))
   }
 
   def move(n: Int): Program = {
@@ -117,8 +118,7 @@ case class Program(
           HLT.some
       }
     val instruction = instructionO.getOrElse(throw new RuntimeException)
-    if (debug)
-      println(f"$ip%5s $instruction")
+    if (debug) println(f"$ip%5s $instruction")
     instruction.apply(this)
   }
 
@@ -130,14 +130,20 @@ case class Program(
       case Running => step.run
     }
 
-  def feed(i: Int): Program =
-    copy(input = i :: input, state = state match {
+  def feed(i: Int): Program = {
+    copy(input = input.enqueue(i), state = state match {
       case Blocked => Running
       case other   => other
     })
+  }
+
+  def extractOutput: (Option[Int], Program) =
+    output.dequeueOption
+      .map { case (h, t) => (h.some, copy(output = t)) }
+      .getOrElse((None, this))
 
   def runOn(input: List[Int]): List[Int] =
-    input.foldRight(this) { case (i, p) => p.feed(i) }.run.output.reverse
+    input.foldRight(this) { case (i, p) => p.feed(i) }.run.output.toList
 
   def runFn(input: Int): Int =
     runOn(List(input)) match {
@@ -159,6 +165,7 @@ object Program {
     case object Running extends State
     case object Halted  extends State
     case object Blocked extends State
-    implicit val eqState: Eq[State] = Eq.fromUniversalEquals
+    implicit val eqState: Eq[State]     = Eq.fromUniversalEquals
+    implicit val showState: Show[State] = Show.fromToString
   }
 }
