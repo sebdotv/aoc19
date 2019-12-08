@@ -3,15 +3,16 @@ package aoc.intcode
 import aoc.implicits._
 import aoc.intcode.Instruction._
 import aoc.intcode.Param._
+import aoc.intcode.Program.State._
 import cats.implicits._
-import cats.{Show, derived}
+import cats.{Eq, Show, derived}
 
 import scala.annotation.tailrec
 
 case class Program(
     memory: Array[Int],
     ip: Int = 0,
-    halted: Boolean = false,
+    state: Program.State = Running,
     input: List[Int] = Nil,
     output: List[Int] = Nil,
     debug: Boolean = false
@@ -24,7 +25,11 @@ case class Program(
   def w(dest: PositionParam, value: Int): Program =
     write(dest.position, value)
   def in(dest: PositionParam): Program =
-    w(dest, input.head).copy(input = input.tail)
+    input match {
+      case h :: t => w(dest, h).copy(input = t)
+      case Nil    => setState(Blocked)
+    }
+
   def out(value: Int): Program =
     copy(output = value :: output)
   def move(n: Int): Program = {
@@ -35,9 +40,19 @@ case class Program(
     require(position >= 0)
     copy(ip = position)
   }
-  def halt: Program = {
-    require(!halted)
-    copy(halted = true)
+  def halt: Program =
+    setState(Halted)
+
+  private def setState(s: Program.State): Program = {
+    s match {
+      case Halted =>
+        require(state === Running)
+      case Blocked =>
+        require(state === Running)
+      case Running =>
+        require(state === Blocked)
+    }
+    copy(state = s)
   }
 
   def read(position: Int): Int =
@@ -61,7 +76,7 @@ case class Program(
   }
 
   def step: Program = {
-    assert(!halted)
+    assert(state === Running)
     val ic = InstructionCode.parse(memory(ip))
     val instructionO =
       ic.opcode match {
@@ -102,8 +117,11 @@ case class Program(
 
   @tailrec
   final def run: Program =
-    if (halted) this
-    else step.run
+    state match {
+      case Halted  => this
+      case Blocked => this
+      case Running => step.run
+    }
 
   def runOn(input: List[Int]): List[Int] =
     copy(input = input).run.output
@@ -121,5 +139,13 @@ object Program {
   implicit val showProgram: Show[Program] = {
     implicitly[Show[Array[Int]]] // this is required to help IntelliJ not delete cats/aoc imports
     derived.semi.show
+  }
+
+  sealed trait State
+  object State {
+    case object Running extends State
+    case object Halted  extends State
+    case object Blocked extends State
+    implicit val eqState: Eq[State] = Eq.fromUniversalEquals
   }
 }

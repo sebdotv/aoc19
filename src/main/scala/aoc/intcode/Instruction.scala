@@ -1,6 +1,7 @@
 package aoc.intcode
 
 import aoc.intcode.Param._
+import aoc.intcode.Program.State._
 import cats.implicits._
 
 sealed trait Instruction {
@@ -17,8 +18,11 @@ object Instruction {
     override def toString                   = s"$dest = $p1 * $p2"
   }
   case class IN(dest: PositionParam) extends Instruction {
-    override def apply(p: Program): Program = p.in(dest).move(2)
-    override def toString                   = s"$dest <- IN"
+    override def apply(p: Program): Program = p.in(dest) match {
+      case p if p.state === Running => p.move(2)
+      case p if p.state === Blocked => p
+    }
+    override def toString = s"$dest <- IN"
   }
   case class OUT(p1: Param) extends Instruction {
     override def apply(p: Program): Program = p.out(p.r(p1)).move(2)
