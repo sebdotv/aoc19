@@ -1,7 +1,7 @@
 package d08
 
-import d08.Part1.Image
 import cats.implicits._
+import d08.Part1.Image
 
 object Part2 {
   object Color {
@@ -29,4 +29,15 @@ object Part2 {
         renderPixel(image, x, y)
       }
     }
+
+  def dumpLayer(image: Image, z: Int): String = {
+    val lines = for (y <- 0 until image.h) yield {
+      (for (x <- 0 until image.w) yield image.pixel(x, y, z) match {
+        case Black       => ' '
+        case White       => 'X'
+        case Transparent => throw new RuntimeException
+      }).mkString
+    }
+    lines.mkString("\n")
+  }
 }
