@@ -12,7 +12,7 @@ object Part1 {
     pixels.count(_ === 1) * pixels.count(_ === 2)
   }
 
-  sealed trait Image {
+  trait Image {
     def w: Int
     def h: Int
     def layers: Int

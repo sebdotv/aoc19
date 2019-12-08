@@ -216,5 +216,26 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
     val input = loadLine("input/08.txt")
     val img   = Part1.Image.parse(input, 25, 6)
     Part1.result(img) mustBe 2125
+    // p2 examples
+    import Part2.Color._
+    Part2.renderPixel(
+      new Part1.Image {
+        override def w: Int      = 1
+        override def h: Int      = 1
+        override def layers: Int = 4
+        override def pixel(x: Int, y: Int, z: Int): Int = (x, y) match {
+          case (0, 0) =>
+            z match {
+              case 0 | 1 => Transparent
+              case 2     => Black
+              case 3     => White
+            }
+          case _ => throw new RuntimeException
+        }
+      },
+      0,
+      0
+    ) mustBe Black
+    Part2.renderImage(Part1.Image.parse("0222112222120000", 2, 2)).getPixels mustBe List(Black, White, White, Black)
   }
 }
