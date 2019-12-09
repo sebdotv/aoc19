@@ -26,7 +26,7 @@ object Part1 {
   }
   case class MultiLayerImage(w: Int, h: Int, layers: Int, private val pixels: Array[Int]) extends Image { self =>
     require(layers > 1)
-    def pixel(x: Int, y: Int, z: Int) =
+    def pixel(x: Int, y: Int, z: Int): Int =
       pixels(x + (y + z * h) * w)
     def layer(z: Int): Image =
       new Image {
@@ -42,8 +42,8 @@ object Part1 {
   object Image {
     def parse(line: String, w: Int, h: Int): MultiLayerImage = {
       val pixels: Array[Int] = line.toCharArray.map(_ - '0')
-      val layers             = pixels.size / (w * h)
-      assert(layers * w * h === pixels.size)
+      val layers             = pixels.length / (w * h)
+      assert(layers * w * h === pixels.length)
       MultiLayerImage(w = w, h = h, layers = layers, pixels)
     }
   }

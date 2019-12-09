@@ -19,7 +19,7 @@ case class Program(
     output: Queue[Long] = Queue.empty,
     debug: Boolean = false
 ) {
-  def adjustRelativeBase(delta: Long) =
+  def adjustRelativeBase(delta: Long): Program =
     copy(relativeBase = relativeBase + delta)
 
   def r(param: Param): Long =
@@ -145,12 +145,11 @@ case class Program(
       case Running => step.run
     }
 
-  def feed(i: Long): Program = {
+  def feed(i: Long): Program =
     copy(input = input.enqueue(i), state = state match {
       case Blocked => Running
       case other   => other
     })
-  }
 
   def extractOutput: (Option[Long], Program) =
     output.dequeueOption

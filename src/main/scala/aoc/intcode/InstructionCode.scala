@@ -8,10 +8,10 @@ case class InstructionCode private (
     opcode: Int,
     parameterModes: Array[Int]
 ) {
-  require(parameterModes.size === 3)
+  require(parameterModes.length === 3)
 }
 object InstructionCode {
-  def parse(i: Int) =
+  def parse(i: Int): InstructionCode =
     InstructionCode(
       opcode = i % 100,
       parameterModes = (i / 100).toString.toArray.map(_ - '0').reverse.padTo(3, 0)
