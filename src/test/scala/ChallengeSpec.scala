@@ -262,6 +262,9 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
     Program.parse("1102,34915192,34915192,7,4,7,99,0").run.output mustBe Queue(1219070632396864L)
     Program.parse("104,1125899906842624,99").run.output mustBe Queue(1125899906842624L)
     // p1 input
-    Program.parse(loadLine("input/09.txt")).copy(debug = true).runFn(1) mustBe 2870072642L
+    val p = Program.parse(loadLine("input/09.txt"))
+    p.runFn(1) mustBe 2870072642L
+    // p2
+    p.runFn(2) mustBe 58534
   }
 }
