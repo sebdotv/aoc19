@@ -10,4 +10,8 @@ object Param {
   case class PositionParam(position: Int) extends Param {
     override def toString = s"[$position]"
   }
+
+  case class RelativeBaseParam(offset: Int) extends Param {
+    override def toString = s"[RB± $offset]"
+  }
 }

@@ -4,6 +4,8 @@ import org.scalatest.Inside.inside
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must._
 
+import scala.collection.immutable.Queue
+
 class ChallengeSpec extends AnyFlatSpec with Matchers {
   "lazy coder" should "do d01" in {
     import d01._
@@ -247,5 +249,18 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
         |X  X   X  X    X  X X    
         | XX    X  XXXX X  X X    
         |""".stripMargin.trim
+  }
+
+  it should "do d09" in {
+    // p1 example
+    val memory = Array.ofDim[Int](2000)
+    memory(0) = 109
+    memory(1) = 19
+    val p1 = Program(memory, relativeBase = 2000).copy(debug = true).step
+    p1.relativeBase mustBe 2019
+    memory(2) = 204
+    memory(3) = -34
+    memory(1985) = 123456
+    p1.step.output mustBe Queue(123456)
   }
 }

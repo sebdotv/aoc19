@@ -13,15 +13,20 @@ import scala.collection.immutable.Queue
 case class Program(
     memory: Array[Int],
     ip: Int = 0,
+    relativeBase: Int = 0,
     state: Program.State = Running,
     input: Queue[Int] = Queue.empty,
     output: Queue[Int] = Queue.empty,
     debug: Boolean = false
 ) {
+  def adjustRelativeBase(delta: Int) =
+    copy(relativeBase = relativeBase + delta)
+
   def r(param: Param): Int =
     param match {
-      case PositionParam(position) => memory(position)
-      case ImmediateParam(value)   => value
+      case PositionParam(position)  => memory(position)
+      case ImmediateParam(value)    => value
+      case RelativeBaseParam(delta) => memory(relativeBase + delta)
     }
   def w(dest: PositionParam, value: Int): Program =
     write(dest.position, value)
@@ -80,6 +85,8 @@ case class Program(
         PositionParam(value)
       case 1 => // immediate mode
         ImmediateParam(value)
+      case 2 => // relative mode
+        RelativeBaseParam(value)
     }
   }
 
@@ -114,6 +121,8 @@ case class Program(
           param(3, ic).some.collect {
             case dest: PositionParam => EQ(param(1, ic), param(2, ic), dest)
           }
+        case 9 =>
+          RBO(param(1, ic)).some
         case 99 =>
           HLT.some
       }

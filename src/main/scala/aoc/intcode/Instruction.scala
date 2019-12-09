@@ -50,6 +50,10 @@ object Instruction {
     override def apply(p: Program): Program = p.w(dest, if (p.r(p1) === p.r(p2)) 1 else 0).move(4)
     override def toString                   = s"$dest = if ($p1 == $p2) 1 else 0"
   }
+  case class RBO(delta: Param) extends Instruction {
+    override def apply(p: Program): Program = p.adjustRelativeBase(p.r(delta)).move(2)
+    override def toString                   = s"RB += $delta"
+  }
   case object HLT extends Instruction {
     override def apply(p: Program): Program = p.halt
     override def toString                   = "HLT"
