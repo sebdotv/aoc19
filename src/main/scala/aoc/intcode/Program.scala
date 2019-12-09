@@ -11,24 +11,24 @@ import scala.annotation.tailrec
 import scala.collection.immutable.Queue
 
 case class Program(
-    sparseMemory: Map[Int, Int],
-    ip: Int = 0,
-    relativeBase: Int = 0,
+    sparseMemory: Map[Long, Long],
+    ip: Long = 0,
+    relativeBase: Long = 0,
     state: Program.State = Running,
-    input: Queue[Int] = Queue.empty,
-    output: Queue[Int] = Queue.empty,
+    input: Queue[Long] = Queue.empty,
+    output: Queue[Long] = Queue.empty,
     debug: Boolean = false
 ) {
-  def adjustRelativeBase(delta: Int) =
+  def adjustRelativeBase(delta: Long) =
     copy(relativeBase = relativeBase + delta)
 
-  def r(param: Param): Int =
+  def r(param: Param): Long =
     param match {
       case PositionParam(position)  => read(position)
       case ImmediateParam(value)    => value
       case RelativeBaseParam(delta) => read(relativeBase + delta)
     }
-  def w(dest: PositionParam, value: Int): Program =
+  def w(dest: PositionParam, value: Long): Program =
     write(dest.position, value)
   def in(dest: PositionParam): Program =
     input.dequeueOption match {
@@ -40,16 +40,16 @@ case class Program(
         setState(Blocked)
     }
 
-  def out(value: Int): Program = {
+  def out(value: Long): Program = {
     if (debug) println(s"OUT> $value")
     copy(output = output.enqueue(value))
   }
 
-  def move(n: Int): Program = {
+  def move(n: Long): Program = {
     require(n > 0)
     copy(ip = ip + n)
   }
-  def jump(position: Int): Program = {
+  def jump(position: Long): Program = {
     require(position >= 0)
     copy(ip = position)
   }
@@ -68,13 +68,13 @@ case class Program(
     copy(state = s)
   }
 
-  def memory: List[Int] =
-    (for (i <- 0 to sparseMemory.keys.max) yield read(i)).toList
+  def memory: List[Long] =
+    (for (i <- 0L to sparseMemory.keys.max) yield read(i)).toList
 
-  def read(position: Int): Int =
-    sparseMemory.withDefaultValue(0)(position)
+  def read(position: Long): Long =
+    sparseMemory.withDefaultValue(0L)(position)
 
-  def write(position: Int, value: Int): Program = {
+  def write(position: Long, value: Long): Program = {
     copy(sparseMemory = sparseMemory + (position -> value))
   }
 
@@ -93,7 +93,7 @@ case class Program(
 
   def step: Program = {
     assert(state === Running)
-    val ic = InstructionCode.parse(read(ip))
+    val ic = InstructionCode.parse(read(ip).toInt)
     val instructionO =
       ic.opcode match {
         case 1 =>
@@ -140,22 +140,22 @@ case class Program(
       case Running => step.run
     }
 
-  def feed(i: Int): Program = {
+  def feed(i: Long): Program = {
     copy(input = input.enqueue(i), state = state match {
       case Blocked => Running
       case other   => other
     })
   }
 
-  def extractOutput: (Option[Int], Program) =
+  def extractOutput: (Option[Long], Program) =
     output.dequeueOption
       .map { case (h, t) => (h.some, copy(output = t)) }
       .getOrElse((None, this))
 
-  def runOn(input: List[Int]): List[Int] =
+  def runOn(input: List[Long]): List[Long] =
     input.foldLeft(this) { case (p, i) => p.feed(i) }.run.output.toList
 
-  def runFn(input: Int): Int =
+  def runFn(input: Long): Long =
     runOn(List(input)) match {
       case List(a) => a
     }
@@ -163,10 +163,10 @@ case class Program(
 
 object Program {
   def parse(line: String): Program =
-    Program(line.split(",").map(_.toInt).zipWithIndex.map { case (a, i) => (i, a) }.toMap)
+    Program(line.split(",").map(_.toLong).zipWithIndex.map { case (a, i) => (i.toLong, a) }.toMap)
 
   implicit val showProgram: Show[Program] = {
-    implicitly[Show[Array[Int]]] // this is required to help IntelliJ not delete cats/aoc imports
+    implicitly[Show[Array[Long]]] // this is required to help IntelliJ not delete cats/aoc imports
     derived.semi.show
   }
 

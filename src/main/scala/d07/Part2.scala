@@ -10,12 +10,12 @@ import aoc.intcode.Program.State.Halted
 import scala.annotation.tailrec
 
 object Part2 {
-  def result(input: String): (List[Int], Int) =
-    (for (phases <- (5 to 9).toList.permutations) yield phases -> result(input, phases)).maxBy(_._2)
+  def result(input: String): (List[Long], Long) =
+    (for (phases <- (5L to 9L).toList.permutations) yield phases -> result(input, phases)).maxBy(_._2)
 
   case class Amps(programs: Array[Program])
   object Amps {
-    def runAmp(i: Int, inputValue: Int): State[Amps, Int] =
+    def runAmp(i: Int, inputValue: Long): State[Amps, Long] =
       State(amps => {
         val (Some(outputValue), updatedP) = amps.programs(i - 1).feed(inputValue).run.extractOutput
         val updatedPrograms               = amps.programs.clone
@@ -26,12 +26,12 @@ object Part2 {
     implicit val showAmps: Show[Amps]       = Show.show(amps => amps.programs.show)
   }
 
-  def result(input: String, phases: List[Int]): Int = {
+  def result(input: String, phases: List[Long]): Long = {
     val p        = Program.parse(input)
     val programs = phases.map(phase => p.feed(phase))
     val amps     = Amps(programs.toArray)
 
-    def loop(inputValue: Int) =
+    def loop(inputValue: Long) =
       for {
         o <- Amps.runAmp(1, inputValue)
         o <- Amps.runAmp(2, o)
@@ -40,7 +40,7 @@ object Part2 {
         o <- Amps.runAmp(5, o)
       } yield o
     @tailrec
-    def rec(x: (Amps, Int)): (Amps, Int) = {
+    def rec(x: (Amps, Long)): (Amps, Long) = {
       if (x._1.programs.forall(_.state === Halted)) x
       else rec(loop(x._2).run(x._1).value)
     }

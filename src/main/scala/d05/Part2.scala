@@ -5,7 +5,7 @@ import aoc.intcode.Program
 import cats.effect.{ExitCode, IO, IOApp}
 
 object Part2 {
-  def result(p: Program): Int =
+  def result(p: Program): Long =
     p.runFn(5)
 }
 
