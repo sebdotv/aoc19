@@ -261,5 +261,7 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
       Queue(109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99)
     Program.parse("1102,34915192,34915192,7,4,7,99,0").run.output mustBe Queue(1219070632396864L)
     Program.parse("104,1125899906842624,99").run.output mustBe Queue(1125899906842624L)
+    // p1 input
+    Program.parse(loadLine("input/09.txt")).copy(debug = true).runFn(1) mustBe 2870072642L
   }
 }

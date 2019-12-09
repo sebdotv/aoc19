@@ -24,12 +24,17 @@ case class Program(
 
   def r(param: Param): Long =
     param match {
-      case PositionParam(position)  => read(position)
-      case ImmediateParam(value)    => value
-      case RelativeBaseParam(delta) => read(relativeBase + delta)
+      case p: PositionParam      => read(resolvePosition(p))
+      case ImmediateParam(value) => value
     }
+  private def resolvePosition(param: PositionParam): Long =
+    param match {
+      case AbsolutePositionParam(position) => position
+      case RelativeBaseParam(delta)        => relativeBase + delta
+    }
+
   def w(dest: PositionParam, value: Long): Program =
-    write(dest.position, value)
+    write(resolvePosition(dest), value)
   def in(dest: PositionParam): Program =
     input.dequeueOption match {
       case Some((h, t)) =>
@@ -83,7 +88,7 @@ case class Program(
     val value = read(ip + param)
     ic.parameterModes(param - 1) match {
       case 0 => // position mode
-        PositionParam(value)
+        AbsolutePositionParam(value)
       case 1 => // immediate mode
         ImmediateParam(value)
       case 2 => // relative mode
@@ -127,7 +132,7 @@ case class Program(
         case 99 =>
           HLT.some
       }
-    val instruction = instructionO.getOrElse(throw new RuntimeException)
+    val instruction = instructionO.getOrElse(throw new RuntimeException(show"Unsupported: $ic"))
     if (debug) println(f"$ip%5s $instruction")
     instruction.apply(this)
   }

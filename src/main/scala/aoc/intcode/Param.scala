@@ -7,11 +7,11 @@ object Param {
     override def toString = s"$value"
   }
 
-  case class PositionParam(position: Long) extends Param {
+  sealed trait PositionParam extends Param
+  case class AbsolutePositionParam(position: Long) extends PositionParam {
     override def toString = s"[$position]"
   }
-
-  case class RelativeBaseParam(offset: Long) extends Param {
+  case class RelativeBaseParam(offset: Long) extends PositionParam {
     override def toString = s"[RB± $offset]"
   }
 }
