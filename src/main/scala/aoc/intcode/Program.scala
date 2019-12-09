@@ -11,7 +11,7 @@ import scala.annotation.tailrec
 import scala.collection.immutable.Queue
 
 case class Program(
-    memory: Array[Int],
+    sparseMemory: Map[Int, Int],
     ip: Int = 0,
     relativeBase: Int = 0,
     state: Program.State = Running,
@@ -24,9 +24,9 @@ case class Program(
 
   def r(param: Param): Int =
     param match {
-      case PositionParam(position)  => memory(position)
+      case PositionParam(position)  => read(position)
       case ImmediateParam(value)    => value
-      case RelativeBaseParam(delta) => memory(relativeBase + delta)
+      case RelativeBaseParam(delta) => read(relativeBase + delta)
     }
   def w(dest: PositionParam, value: Int): Program =
     write(dest.position, value)
@@ -68,18 +68,19 @@ case class Program(
     copy(state = s)
   }
 
+  def memory: List[Int] =
+    (for (i <- 0 to sparseMemory.keys.max) yield read(i)).toList
+
   def read(position: Int): Int =
-    memory(position)
+    sparseMemory.withDefaultValue(0)(position)
 
   def write(position: Int, value: Int): Program = {
-    val updated = memory.clone
-    updated(position) = value
-    copy(memory = updated)
+    copy(sparseMemory = sparseMemory + (position -> value))
   }
 
   /** @param param 1-based */
   private def param(param: Int, ic: InstructionCode): Param = {
-    val value = memory(ip + param)
+    val value = read(ip + param)
     ic.parameterModes(param - 1) match {
       case 0 => // position mode
         PositionParam(value)
@@ -92,7 +93,7 @@ case class Program(
 
   def step: Program = {
     assert(state === Running)
-    val ic = InstructionCode.parse(memory(ip))
+    val ic = InstructionCode.parse(read(ip))
     val instructionO =
       ic.opcode match {
         case 1 =>
@@ -162,7 +163,7 @@ case class Program(
 
 object Program {
   def parse(line: String): Program =
-    Program(line.split(",").map(_.toInt))
+    Program(line.split(",").map(_.toInt).zipWithIndex.map { case (a, i) => (i, a) }.toMap)
 
   implicit val showProgram: Show[Program] = {
     implicitly[Show[Array[Int]]] // this is required to help IntelliJ not delete cats/aoc imports

@@ -23,7 +23,7 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
   it should "do d02" in {
     import d02._
     // example
-    Program.parse("1,9,10,3,2,3,11,0,99,30,40,50").run.memory mustBe Array(3500, 9, 10, 70, 2, 3, 11, 0, 99, 30, 40, 50)
+    Program.parse("1,9,10,3,2,3,11,0,99,30,40,50").run.memory mustBe List(3500, 9, 10, 70, 2, 3, 11, 0, 99, 30, 40, 50)
     // input
     val input = Program.parse(loadLine("input/02.txt"))
     Part1.patch(input, noun = 12, verb = 2).run.read(0) mustBe 3516593
@@ -74,9 +74,9 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
     inside(InstructionCode.parse(1002)) {
       case InstructionCode(opcode, parameterModes) =>
         opcode mustBe 2
-        parameterModes mustBe Array(0, 1, 0)
+        parameterModes mustBe List(0, 1, 0)
     }
-    Program.parse("1002,4,3,4,33").run.memory mustBe Array(1002, 4, 3, 4, 99)
+    Program.parse("1002,4,3,4,33").run.memory mustBe List(1002, 4, 3, 4, 99)
     // p1 input
     val input = Program.parse(loadLine("input/05.txt"))
     Part1.result(input) mustBe List(0, 0, 0, 0, 0, 0, 0, 0, 0, 6069343)
@@ -252,15 +252,12 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
   }
 
   it should "do d09" in {
-    // p1 example
-    val memory = Array.ofDim[Int](2000)
-    memory(0) = 109
-    memory(1) = 19
-    val p1 = Program(memory, relativeBase = 2000).copy(debug = true).step
+    // p1 example 1
+    val p1 = Program.parse("109,19,204,-34").copy(relativeBase = 2000).step
     p1.relativeBase mustBe 2019
-    memory(2) = 204
-    memory(3) = -34
-    memory(1985) = 123456
-    p1.step.output mustBe Queue(123456)
+    p1.write(1985, 123456).step.output mustBe Queue(123456)
+    // p1 examples
+    Program.parse("109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99").run.output mustBe
+      Queue(109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99)
   }
 }
