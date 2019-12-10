@@ -132,10 +132,9 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
   }
 
   it should "do d06" in {
-    def split(s: String) = s.trim.split("\n").toList
     import d06._
     // p1 examples
-    val testInput1 = split("""
+    val testInput1 = """
       |COM)B
       |B)C
       |C)D
@@ -147,7 +146,7 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
       |E)J
       |J)K
       |K)L
-      |""".stripMargin)
+      |""".stripMargin.splitLines
     val testOD1    = new Part1.OrbitDag(testInput1)
     testOD1.orbits("D") mustBe 3
     testOD1.orbits("L") mustBe 7
@@ -157,7 +156,7 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
     val inputOD = new Part1.OrbitDag(load("input/06.txt"))
     inputOD.totalOrbits mustBe 251208
     // p2 examples
-    val testInput2 = split("""
+    val testInput2 = """
         |COM)B
         |B)C
         |C)D
@@ -171,7 +170,7 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
         |K)L
         |K)YOU
         |I)SAN
-        |""".stripMargin)
+        |""".stripMargin.splitLines
     Part2.minTransfers(new Part1.OrbitDag(testInput2), "YOU", "SAN") mustBe 4
     // p2 input
     Part2.minTransfers(inputOD, "YOU", "SAN") mustBe 397
@@ -277,7 +276,7 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
         |#####
         |....#
         |...##
-        |""".stripMargin.trim.split("\n").toList)) {
+        |""".stripMargin.splitLines)) {
       case rm =>
         rm.w mustBe 5
         rm.h mustBe 5
