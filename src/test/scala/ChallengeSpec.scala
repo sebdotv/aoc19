@@ -285,16 +285,15 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
         rm.asteroids(Coord(1, 0)) mustBe true
         rm.asteroids(Coord(0, 1)) mustBe false
         rm.asteroids.size mustBe 10
-
         Part1.bestLocation(rm) mustBe ((Coord(3, 4), 8))
-        Part1.detectionGrid(rm) mustBe
+        Part1.detectionGrid(rm).trim mustBe
           """
             |.7..7
             |.....
             |67775
             |....7
             |...87
-            |""".stripMargin.splitLines
+            |""".stripMargin.trim
     }
     Part1.bestLocation(
       RegionMap.parse("""
@@ -363,6 +362,6 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
           |""".stripMargin.splitLines)
     ) mustBe ((Coord(11, 13), 210))
     // p1 input
-    Part1.bestLocation(RegionMap.parse(load("input/10.txt"))) mustBe ((Coord(1234, 1234), 1234))
+    Part1.bestLocation(RegionMap.parse(load("input/10.txt"))) mustBe ((Coord(31, 20), 319))
   }
 }
