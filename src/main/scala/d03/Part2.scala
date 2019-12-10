@@ -1,6 +1,6 @@
 package d03
 
-import aoc.geometry.Coord
+import aoc.trigo.Coord
 import d03.Part1._
 import cats.implicits._
 

@@ -1,4 +1,4 @@
-package aoc.geometry
+package aoc.trigo
 
 import cats.Eq
 import cats.implicits._

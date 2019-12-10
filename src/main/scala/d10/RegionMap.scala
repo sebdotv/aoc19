@@ -1,6 +1,6 @@
 package d10
 
-import aoc.geometry.Coord
+import aoc.trigo.Coord
 import cats.implicits._
 
 case class RegionMap(w: Int, h: Int, asteroids: Set[Coord])

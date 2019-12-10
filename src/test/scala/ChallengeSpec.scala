@@ -1,5 +1,5 @@
 import TestUtils._
-import aoc.geometry.Coord
+import aoc.trigo.Coord
 import aoc.intcode._
 import org.scalatest.Inside.inside
 import org.scalatest.flatspec.AnyFlatSpec
@@ -337,31 +337,66 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
           |.....#.#..
           |""".stripMargin.splitLines)
     ) mustBe ((Coord(6, 3), 41))
-    Part1.bestLocation(
-      RegionMap.parse("""
-          |.#..##.###...#######
-          |##.############..##.
-          |.#.######.########.#
-          |.###.#######.####.#.
-          |#####.##.#.##.###.##
-          |..#####..#.#########
-          |####################
-          |#.####....###.#.#.##
-          |##.#################
-          |#####.##.###..####..
-          |..######..##.#######
-          |####.##.####...##..#
-          |.#####..#.######.###
-          |##...#.##########...
-          |#.##########.#######
-          |.####.#.###.###.#.##
-          |....##.##.###..#####
-          |.#.#.###########.###
-          |#.#.#.#####.####.###
-          |###.##.####.##.#..##
-          |""".stripMargin.splitLines)
-    ) mustBe ((Coord(11, 13), 210))
+    val largeExample = RegionMap.parse("""
+      |.#..##.###...#######
+      |##.############..##.
+      |.#.######.########.#
+      |.###.#######.####.#.
+      |#####.##.#.##.###.##
+      |..#####..#.#########
+      |####################
+      |#.####....###.#.#.##
+      |##.#################
+      |#####.##.###..####..
+      |..######..##.#######
+      |####.##.####...##..#
+      |.#####..#.######.###
+      |##...#.##########...
+      |#.##########.#######
+      |.####.#.###.###.#.##
+      |....##.##.###..#####
+      |.#.#.###########.###
+      |#.#.#.#####.####.###
+      |###.##.####.##.#..##
+      |""".stripMargin.splitLines)
+    Part1.bestLocation(largeExample) mustBe ((Coord(11, 13), 210))
     // p1 input
-    Part1.bestLocation(RegionMap.parse(load("input/10.txt"))) mustBe ((Coord(31, 20), 319))
+    val input = RegionMap.parse(load("input/10.txt"))
+    Part1.bestLocation(input) mustBe ((Coord(31, 20), 319))
+    // p2 examples
+    inside(RegionMap.parse("""
+        |.#....#####...#..
+        |##...##.#####..##
+        |##...#...#.#####.
+        |..#.....#...###..
+        |..#.#.....#....##
+        |""".stripMargin.splitLines)) {
+      case rm =>
+        val station = Part1.bestLocation(rm)._1
+        station mustBe Coord(8, 3)
+        val vaporizationOrder = Part2.vaporizationOrder(rm, station)
+        Part2.laserGrid(rm, station, vaporizationOrder.take(9)).trim mustBe
+          """
+            |.#....###24...#..
+            |##...##.13#67..9#
+            |##...#...5.8####.
+            |..#.....X...###..
+            |..#.#.....#....##
+            |""".stripMargin.trim
+    }
+    inside(largeExample) {
+      case rm =>
+        val station = Part1.bestLocation(rm)._1
+        station mustBe Coord(11, 13)
+        val vaporizationOrder = Part2.vaporizationOrder(rm, station)
+        vaporizationOrder(199) mustBe Coord(8, 2)
+    }
+    // p2 input
+    val station = Part1.bestLocation(input)._1
+    station mustBe Coord(31, 20)
+    val vaporizationOrder = Part2.vaporizationOrder(input, station)
+    val v200              = vaporizationOrder(199)
+    v200 mustBe Coord(5, 17)
+    v200.x * 100 + v200.y mustBe 517
   }
 }

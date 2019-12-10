@@ -1,6 +1,7 @@
 package d10
 
-import aoc.geometry.Coord
+import aoc.trigo.Coord
+import aoc.trigo.VectorUtils._
 import cats.implicits._
 
 object Part1 {
@@ -10,7 +11,7 @@ object Part1 {
   }
 
   def computeMinVectors(rm: RegionMap, a: Coord): Set[Coord] =
-    for (b <- rm.asteroids if b =!= a) yield ReduceVector.reduce(b - a)
+    for (b <- rm.asteroids if b =!= a) yield simplifyVector(b - a)
 
   def detectionGrid(rm: RegionMap): String =
     (for (y <- 0 until rm.h) yield (for (x <- 0 until rm.w) yield {

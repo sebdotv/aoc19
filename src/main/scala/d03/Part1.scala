@@ -1,6 +1,6 @@
 package d03
 
-import aoc.geometry.Coord
+import aoc.trigo.Coord
 
 import scala.annotation.tailrec
 
