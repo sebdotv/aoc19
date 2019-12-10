@@ -1,4 +1,5 @@
 import TestUtils._
+import aoc.geometry.Coord
 import aoc.intcode._
 import org.scalatest.Inside.inside
 import org.scalatest.flatspec.AnyFlatSpec
@@ -266,5 +267,24 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
     p.runFn(1) mustBe 2870072642L
     // p2
     p.runFn(2) mustBe 58534
+  }
+
+  it should "do d10" in {
+    import d10._
+    inside(RegionMap.parse("""
+        |.#..#
+        |.....
+        |#####
+        |....#
+        |...##
+        |""".stripMargin.trim.split("\n").toList)) {
+      case rm =>
+        rm.w mustBe 5
+        rm.h mustBe 5
+        rm.asteroids(Coord(0, 0)) mustBe false
+        rm.asteroids(Coord(1, 0)) mustBe true
+        rm.asteroids(Coord(0, 1)) mustBe false
+        rm.asteroids.size mustBe 10
+    }
   }
 }
