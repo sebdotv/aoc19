@@ -1,6 +1,7 @@
 package d03
 
-import cats.Eq
+import aoc.geometry.Coord
+
 import scala.annotation.tailrec
 
 object Part1 {
@@ -50,14 +51,4 @@ object Part1 {
     }
   }
   type Path = List[Move]
-  case class Coord(x: Int, y: Int) {
-    import Coord._
-    def +(other: Coord): Coord  = Coord(x + other.x, y + other.y)
-    def abs: Int                = dist(zero)
-    def dist(other: Coord): Int = math.abs(x - other.x) + math.abs(y - other.y)
-  }
-  object Coord {
-    val zero: Coord                 = Coord(0, 0)
-    implicit val eqCoord: Eq[Coord] = Eq.fromUniversalEquals
-  }
 }
