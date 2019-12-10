@@ -270,6 +270,7 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
 
   it should "do d10" in {
     import d10._
+    // p1 examples
     inside(RegionMap.parse("""
         |.#..#
         |.....
@@ -284,6 +285,84 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
         rm.asteroids(Coord(1, 0)) mustBe true
         rm.asteroids(Coord(0, 1)) mustBe false
         rm.asteroids.size mustBe 10
+
+        Part1.bestLocation(rm) mustBe ((Coord(3, 4), 8))
+        Part1.detectionGrid(rm) mustBe
+          """
+            |.7..7
+            |.....
+            |67775
+            |....7
+            |...87
+            |""".stripMargin.splitLines
     }
+    Part1.bestLocation(
+      RegionMap.parse("""
+        |......#.#.
+        |#..#.#....
+        |..#######.
+        |.#.#.###..
+        |.#..#.....
+        |..#....#.#
+        |#..#....#.
+        |.##.#..###
+        |##...#..#.
+        |.#....####
+        |""".stripMargin.splitLines)
+    ) mustBe ((Coord(5, 8), 33))
+    Part1.bestLocation(
+      RegionMap.parse("""
+          |#.#...#.#.
+          |.###....#.
+          |.#....#...
+          |##.#.#.#.#
+          |....#.#.#.
+          |.##..###.#
+          |..#...##..
+          |..##....##
+          |......#...
+          |.####.###.
+          |""".stripMargin.splitLines)
+    ) mustBe ((Coord(1, 2), 35))
+    Part1.bestLocation(
+      RegionMap.parse("""
+          |.#..#..###
+          |####.###.#
+          |....###.#.
+          |..###.##.#
+          |##.##.#.#.
+          |....###..#
+          |..#.#..#.#
+          |#..#.#.###
+          |.##...##.#
+          |.....#.#..
+          |""".stripMargin.splitLines)
+    ) mustBe ((Coord(6, 3), 41))
+    Part1.bestLocation(
+      RegionMap.parse("""
+          |.#..##.###...#######
+          |##.############..##.
+          |.#.######.########.#
+          |.###.#######.####.#.
+          |#####.##.#.##.###.##
+          |..#####..#.#########
+          |####################
+          |#.####....###.#.#.##
+          |##.#################
+          |#####.##.###..####..
+          |..######..##.#######
+          |####.##.####...##..#
+          |.#####..#.######.###
+          |##...#.##########...
+          |#.##########.#######
+          |.####.#.###.###.#.##
+          |....##.##.###..#####
+          |.#.#.###########.###
+          |#.#.#.#####.####.###
+          |###.##.####.##.#..##
+          |""".stripMargin.splitLines)
+    ) mustBe ((Coord(11, 13), 210))
+    // p1 input
+    Part1.bestLocation(RegionMap.parse(load("input/10.txt"))) mustBe ((Coord(1234, 1234), 1234))
   }
 }
