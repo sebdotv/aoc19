@@ -5,7 +5,7 @@ import cats.Show
 import cats.data.State
 import cats.implicits._
 import aoc.implicits._
-import aoc.intcode.Program.State.Halted
+import aoc.intcode.Program.ProgramState.Halted
 
 import scala.annotation.tailrec
 
@@ -17,7 +17,7 @@ object Part2 {
   object Amps {
     def runAmp(i: Int, inputValue: Long): State[Amps, Long] =
       State(amps => {
-        val (Some(outputValue), updatedP) = amps.programs(i - 1).feed(inputValue).run.extractOutput
+        val (updatedP, Some(outputValue)) = amps.programs(i - 1).feed(inputValue).run.extractOutput
         val updatedPrograms               = amps.programs.clone
         updatedPrograms(i - 1) = updatedP
         (amps.copy(programs = updatedPrograms), outputValue)

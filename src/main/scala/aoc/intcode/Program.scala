@@ -3,7 +3,8 @@ package aoc.intcode
 import aoc.implicits._
 import aoc.intcode.Instruction._
 import aoc.intcode.Param._
-import aoc.intcode.Program.State._
+import aoc.intcode.Program.ProgramState._
+import cats.data.State
 import cats.implicits._
 import cats.{Eq, Show, derived}
 
@@ -14,7 +15,7 @@ case class Program(
     sparseMemory: Map[Long, Long],
     ip: Long = 0,
     relativeBase: Long = 0,
-    state: Program.State = Running,
+    state: Program.ProgramState = Running,
     input: Queue[Long] = Queue.empty,
     output: Queue[Long] = Queue.empty,
     debug: Boolean = false
@@ -61,7 +62,7 @@ case class Program(
   def halt: Program =
     setState(Halted)
 
-  private def setState(s: Program.State): Program = {
+  private def setState(s: Program.ProgramState): Program = {
     s match {
       case Halted =>
         require(state === Running)
@@ -151,10 +152,10 @@ case class Program(
       case other   => other
     })
 
-  def extractOutput: (Option[Long], Program) =
+  def extractOutput: (Program, Option[Long]) =
     output.dequeueOption
-      .map { case (h, t) => (h.some, copy(output = t)) }
-      .getOrElse((None, this))
+      .map { case (h, t) => (copy(output = t), h.some) }
+      .getOrElse((this, None))
 
   def runOn(input: List[Long]): List[Long] =
     input.foldLeft(this) { case (p, i) => p.feed(i) }.run.output.toList
@@ -169,17 +170,20 @@ object Program {
   def parse(line: String): Program =
     Program(line.split(",").map(_.toLong).zipWithIndex.map { case (a, i) => (i.toLong, a) }.toMap)
 
+  def feedAndRunS(input: Long): State[Program, Unit] = State(p => (p.feed(input).run, ()))
+  val extractOutputS: State[Program, Option[Long]]   = State(_.extractOutput)
+
   implicit val showProgram: Show[Program] = {
     implicitly[Show[Array[Long]]] // this is required to help IntelliJ not delete cats/aoc imports
     derived.semi.show
   }
 
-  sealed trait State
-  object State {
-    case object Running extends State
-    case object Halted  extends State
-    case object Blocked extends State
-    implicit val eqState: Eq[State]     = Eq.fromUniversalEquals
-    implicit val showState: Show[State] = Show.fromToString
+  sealed trait ProgramState
+  object ProgramState {
+    case object Running extends ProgramState
+    case object Halted  extends ProgramState
+    case object Blocked extends ProgramState
+    implicit val eqState: Eq[ProgramState]     = Eq.fromUniversalEquals
+    implicit val showState: Show[ProgramState] = Show.fromToString
   }
 }

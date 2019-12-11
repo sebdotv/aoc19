@@ -1,6 +1,7 @@
 import TestUtils._
-import aoc.trigo.Coord
+import aoc.intcode.Program.ProgramState.Halted
 import aoc.intcode._
+import aoc.trigo.Coord
 import org.scalatest.Inside.inside
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must._
@@ -398,5 +399,16 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
     val v200              = vaporizationOrder(199)
     v200 mustBe Coord(5, 17)
     v200.x * 100 + v200.y mustBe 517
+  }
+
+  it should "do d11" in {
+    import d11._
+    inside(Part1.Region(Program.parse(loadLine("input/11.txt"))).run) {
+      case r =>
+        r.p.state mustBe Halted
+        r.p.input mustBe empty
+        r.p.output mustBe empty
+        r.paintedPanels.size mustBe 1709
+    }
   }
 }

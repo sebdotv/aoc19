@@ -1,6 +1,6 @@
 package aoc.intcode
 
-import aoc.intcode.Program.State.Blocked
+import aoc.intcode.Program.ProgramState.Blocked
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must._
 

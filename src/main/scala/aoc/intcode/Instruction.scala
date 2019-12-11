@@ -1,7 +1,7 @@
 package aoc.intcode
 
 import aoc.intcode.Param._
-import aoc.intcode.Program.State._
+import aoc.intcode.Program.ProgramState._
 import cats.implicits._
 
 sealed trait Instruction {
