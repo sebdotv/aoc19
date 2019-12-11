@@ -3,6 +3,8 @@ package aoc.trigo
 import cats.Eq
 import cats.implicits._
 
+import scala.annotation.tailrec
+
 case class Coord(x: Int, y: Int) {
   import Coord._
   def +(other: Coord): Coord = Coord(x + other.x, y + other.y)
@@ -18,4 +20,11 @@ case class Coord(x: Int, y: Int) {
 object Coord {
   val zero: Coord                 = Coord(0, 0)
   implicit val eqCoord: Eq[Coord] = Eq.fromUniversalEquals
+
+  @tailrec
+  def computeRange(coords: List[Coord], minX: Int = 0, minY: Int = 0, maxX: Int = 0, maxY: Int = 0): (Int, Int, Int, Int) =
+    coords match {
+      case Nil    => (minX, minY, maxX, maxY)
+      case h :: t => computeRange(t, minX = math.min(minX, h.x), minY = math.min(minY, h.y), maxX = math.max(maxX, h.x), maxY = math.max(maxY, h.y))
+    }
 }

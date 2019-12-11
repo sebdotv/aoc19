@@ -403,12 +403,22 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
 
   it should "do d11" in {
     import d11._
-    inside(Part1.Region(Program.parse(loadLine("input/11.txt"))).run) {
+    val input = Part1.Region(Program.parse(loadLine("input/11.txt")))
+    inside(input.run) {
       case r =>
         r.p.state mustBe Halted
         r.p.input mustBe empty
         r.p.output mustBe empty
         r.paintedPanels.size mustBe 1709
     }
+    Part2.render(input.copy(paintedPanels = Map(input.robot -> 1L)).run.paintedPanels).trim mustBe
+      """
+        | ###   ##  #  # #### #  #  ##    ## #  #   
+        | #  # #  # #  # #    #  # #  #    # #  #   
+        | #  # #    #  # ###  #### #       # ####   
+        | ###  # ## #  # #    #  # #       # #  #   
+        | #    #  # #  # #    #  # #  # #  # #  #   
+        | #     ###  ##  #### #  #  ##   ##  #  #   
+        |""".stripMargin.trim
   }
 }
