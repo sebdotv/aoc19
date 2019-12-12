@@ -431,7 +431,7 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
     }
     // p1 examples
     gravity(Coord3(3, 0, 0), Coord3(5, 0, 0)) mustBe Coord3(1, 0, 0)
-    val s = System.parse(
+    val example1 = System.parse(
       """
         |<x=-1, y=0, z=2>
         |<x=2, y=-10, z=-7>
@@ -439,7 +439,7 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
         |<x=3, y=5, z=-1>
         |""".stripMargin.splitLines
     )
-    inside(s.trace(10, identity)) {
+    inside(example1.trace(10, identity)) {
       case ss =>
         ss.map(_.show).reverse.mkString("\n\n") mustBe
           """
@@ -513,7 +513,7 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
         s10.steps mustBe 10
         s10.totalEnergy mustBe 179
     }
-    val s2 = System.parse(
+    val example2 = System.parse(
       """
         |<x=-8, y=-10, z=0>
         |<x=5, y=5, z=10>
@@ -521,7 +521,7 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
         |<x=9, y=-8, z=-3>
         |""".stripMargin.splitLines
     )
-    inside(s2.run(100)) {
+    inside(example2.run(100)) {
       case s =>
         s.show mustBe
           """
@@ -534,6 +534,17 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
         s.totalEnergy mustBe 1940
     }
     // p1 input
-    System.parse(load("input/12.txt")).run(1000).totalEnergy mustBe 12490
+    val input = System.parse(load("input/12.txt"))
+    input.run(1000).totalEnergy mustBe 12490
+    // p2 examples
+    inside(Part2.findRepetition(example1)) {
+      case (a, b) =>
+        a mustBe 0
+        b mustBe 2772
+    }
+    Part2.result(example1) mustBe 2772
+    Part2.result(example2) mustBe 4686774924L
+    // p2 input
+    Part2.result(input) mustBe 392733896255168L
   }
 }

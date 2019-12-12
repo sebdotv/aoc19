@@ -37,7 +37,13 @@ object Part1 {
     implicit val showMoon: Show[Moon] = Show.show(a => show"pos=${a.pos}, vel=${a.vel}")
   }
 
-  case class System(moons: List[Moon], steps: Int = 0) {
+  trait SystemLike[M] {
+    def moons: List[M]
+    def step: SystemLike[M]
+    def steps: Int
+  }
+
+  case class System(moons: List[Moon], steps: Int = 0) extends SystemLike[Moon] {
     def totalEnergy = moons.map(_.totalEnergy).sum
 
     def step: System = {

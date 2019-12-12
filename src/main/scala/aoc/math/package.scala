@@ -10,4 +10,7 @@ package object math {
   def gcd(a: Int, b: Int): Int =
     if (b === 0) a
     else gcd(b, a % b)
+
+  def lcm(a: Long, b: Long): Long =
+    a * b / gcd(a.toInt, b.toInt)
 }
