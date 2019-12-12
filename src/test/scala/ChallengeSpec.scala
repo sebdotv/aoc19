@@ -2,6 +2,7 @@ import TestUtils._
 import aoc.intcode.Program.ProgramState.Halted
 import aoc.intcode._
 import aoc.trigo.Coord
+import cats.implicits._
 import org.scalatest.Inside.inside
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must._
@@ -420,5 +421,86 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
         | #    #  # #  # #    #  # #  # #  # #  #   
         | #     ###  ##  #### #  #  ##   ##  #  #   
         |""".stripMargin.trim
+  }
+
+  it should "do d12" in {
+    import d12._
+    import Part1._
+    gravity(Coord3(3, 0, 0), Coord3(5, 0, 0)) mustBe Coord3(1, 0, 0)
+    val s = System(
+      Moon(pos = Coord3(x = -1, y = 0, z = 2)),
+      Moon(pos = Coord3(x = 2, y = -10, z = -7)),
+      Moon(pos = Coord3(x = 4, y = -8, z = 8)),
+      Moon(pos = Coord3(x = 3, y = 5, z = -1))
+    )
+    s.run(10, _.show).mkString("\n\n") mustBe
+      """
+        |After 0 steps:
+        |pos=<x=-1, y=  0, z= 2>, vel=<x= 0, y= 0, z= 0>
+        |pos=<x= 2, y=-10, z=-7>, vel=<x= 0, y= 0, z= 0>
+        |pos=<x= 4, y= -8, z= 8>, vel=<x= 0, y= 0, z= 0>
+        |pos=<x= 3, y=  5, z=-1>, vel=<x= 0, y= 0, z= 0>
+        |
+        |After 1 step:
+        |pos=<x= 2, y=-1, z= 1>, vel=<x= 3, y=-1, z=-1>
+        |pos=<x= 3, y=-7, z=-4>, vel=<x= 1, y= 3, z= 3>
+        |pos=<x= 1, y=-7, z= 5>, vel=<x=-3, y= 1, z=-3>
+        |pos=<x= 2, y= 2, z= 0>, vel=<x=-1, y=-3, z= 1>
+        |
+        |After 2 steps:
+        |pos=<x= 5, y=-3, z=-1>, vel=<x= 3, y=-2, z=-2>
+        |pos=<x= 1, y=-2, z= 2>, vel=<x=-2, y= 5, z= 6>
+        |pos=<x= 1, y=-4, z=-1>, vel=<x= 0, y= 3, z=-6>
+        |pos=<x= 1, y=-4, z= 2>, vel=<x=-1, y=-6, z= 2>
+        |
+        |After 3 steps:
+        |pos=<x= 5, y=-6, z=-1>, vel=<x= 0, y=-3, z= 0>
+        |pos=<x= 0, y= 0, z= 6>, vel=<x=-1, y= 2, z= 4>
+        |pos=<x= 2, y= 1, z=-5>, vel=<x= 1, y= 5, z=-4>
+        |pos=<x= 1, y=-8, z= 2>, vel=<x= 0, y=-4, z= 0>
+        |
+        |After 4 steps:
+        |pos=<x= 2, y=-8, z= 0>, vel=<x=-3, y=-2, z= 1>
+        |pos=<x= 2, y= 1, z= 7>, vel=<x= 2, y= 1, z= 1>
+        |pos=<x= 2, y= 3, z=-6>, vel=<x= 0, y= 2, z=-1>
+        |pos=<x= 2, y=-9, z= 1>, vel=<x= 1, y=-1, z=-1>
+        |
+        |After 5 steps:
+        |pos=<x=-1, y=-9, z= 2>, vel=<x=-3, y=-1, z= 2>
+        |pos=<x= 4, y= 1, z= 5>, vel=<x= 2, y= 0, z=-2>
+        |pos=<x= 2, y= 2, z=-4>, vel=<x= 0, y=-1, z= 2>
+        |pos=<x= 3, y=-7, z=-1>, vel=<x= 1, y= 2, z=-2>
+        |
+        |After 6 steps:
+        |pos=<x=-1, y=-7, z= 3>, vel=<x= 0, y= 2, z= 1>
+        |pos=<x= 3, y= 0, z= 0>, vel=<x=-1, y=-1, z=-5>
+        |pos=<x= 3, y=-2, z= 1>, vel=<x= 1, y=-4, z= 5>
+        |pos=<x= 3, y=-4, z=-2>, vel=<x= 0, y= 3, z=-1>
+        |
+        |After 7 steps:
+        |pos=<x= 2, y=-2, z= 1>, vel=<x= 3, y= 5, z=-2>
+        |pos=<x= 1, y=-4, z=-4>, vel=<x=-2, y=-4, z=-4>
+        |pos=<x= 3, y=-7, z= 5>, vel=<x= 0, y=-5, z= 4>
+        |pos=<x= 2, y= 0, z= 0>, vel=<x=-1, y= 4, z= 2>
+        |
+        |After 8 steps:
+        |pos=<x= 5, y= 2, z=-2>, vel=<x= 3, y= 4, z=-3>
+        |pos=<x= 2, y=-7, z=-5>, vel=<x= 1, y=-3, z=-1>
+        |pos=<x= 0, y=-9, z= 6>, vel=<x=-3, y=-2, z= 1>
+        |pos=<x= 1, y= 1, z= 3>, vel=<x=-1, y= 1, z= 3>
+        |
+        |After 9 steps:
+        |pos=<x= 5, y= 3, z=-4>, vel=<x= 0, y= 1, z=-2>
+        |pos=<x= 2, y=-9, z=-3>, vel=<x= 0, y=-2, z= 2>
+        |pos=<x= 0, y=-8, z= 4>, vel=<x= 0, y= 1, z=-2>
+        |pos=<x= 1, y= 1, z= 5>, vel=<x= 0, y= 0, z= 2>
+        |
+        |After 10 steps:
+        |pos=<x= 2, y= 1, z=-3>, vel=<x=-3, y=-2, z= 1>
+        |pos=<x= 1, y=-8, z= 0>, vel=<x=-1, y= 1, z= 3>
+        |pos=<x= 3, y=-6, z= 1>, vel=<x= 3, y= 2, z=-3>
+        |pos=<x= 2, y= 0, z= 4>, vel=<x= 1, y=-1, z=-1>
+        |""".stripMargin.trim.replaceAll("""(=) +(-?\d)""", """$1$2""")
+
   }
 }
