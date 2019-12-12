@@ -13,6 +13,7 @@ object Part1 {
     def +(other: Coord3)   = Coord3(x = x + other.x, y = y + other.y, z = z + other.z)
     def -(other: Coord3)   = Coord3(x = x - other.x, y = y - other.y, z = z - other.z)
     def map(f: Int => Int) = Coord3(x = f(x), y = f(y), z = f(z))
+    def sum                = x + y + z
   }
   object Coord3 {
     val zero                              = Coord3(0, 0, 0)
@@ -20,13 +21,25 @@ object Part1 {
     implicit val showCoord3: Show[Coord3] = Show.show(a => s"<x=${a.x}, y=${a.y}, z=${a.z}>")
   }
 
-  case class Moon(pos: Coord3, vel: Coord3 = Coord3.zero)
+  case class Moon(pos: Coord3, vel: Coord3 = Coord3.zero) {
+    def potentialEnergy = pos.map(math.abs).sum
+    def kineticEnergy   = vel.map(math.abs).sum
+    def totalEnergy     = potentialEnergy * kineticEnergy
+  }
   object Moon {
+    def parse(line: String): Moon = {
+      val MoonRegex          = """<x=(-?\d+), y=(-?\d+), z=(-?\d+)>""".r
+      val MoonRegex(x, y, z) = line
+      Moon(Coord3(x.toInt, y.toInt, z.toInt))
+    }
+
     implicit val eqMoon: Eq[Moon]     = Eq.fromUniversalEquals
     implicit val showMoon: Show[Moon] = Show.show(a => show"pos=${a.pos}, vel=${a.vel}")
   }
 
   case class System(moons: List[Moon], steps: Int = 0) {
+    def totalEnergy = moons.map(_.totalEnergy).sum
+
     def step: System = {
       def computeGravity(a: Moon): Coord3 =
         (for {
@@ -47,11 +60,16 @@ object Part1 {
     }
 
     @tailrec
-    final def run[A](steps: Int, f: System => A, acc: List[A] = Nil): List[A] =
-      if (steps < 0) acc.reverse
-      else step.run(steps - 1, f, f(this) :: acc)
+    final def trace[A](steps: Int, f: System => A, acc: List[A] = Nil): List[A] =
+      if (steps < 0) acc
+      else step.trace(steps - 1, f, f(this) :: acc)
+    @tailrec
+    final def run(steps: Int): System =
+      if (steps === 0) this
+      else step.run(steps - 1)
   }
   object System {
+    def parse(lines: List[String])  = System(lines.map(Moon.parse))
     def apply(moons: Moon*): System = System(moons.toList)
     implicit val showSystem: Show[System] =
       Show.show(a => (s"After ${a.steps} step${if (a.steps =!= 1) "s" else ""}:" :: a.moons.map(_.show)).mkString("\n"))
