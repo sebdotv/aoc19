@@ -61,6 +61,6 @@ object ArcadeCabinet {
 object Part1 {
   @tailrec
   def run(a: ArcadeCabinet): ArcadeCabinet =
-    if (a.p.state === Halted) a
-    else run(a.step)
+    if (a.p.state === Running) run(a.step)
+    else a
 }
