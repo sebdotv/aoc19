@@ -547,4 +547,10 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
     // p2 input
     Part2.result(input) mustBe 392733896255168L
   }
+
+  it should "do d13" in {
+    import d13._
+    val input = ArcadeCabinet(Program.parse(loadLine("input/13.txt")))
+    Part1.run(input).screen.painted.values.filter(_ === TileType.Block).size mustBe 205
+  }
 }

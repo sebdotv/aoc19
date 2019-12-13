@@ -146,6 +146,18 @@ case class Program(
       case Running => step.run
     }
 
+  @tailrec
+  final def runToOutput: (Program, Option[Long]) =
+    extractOutput match {
+      case (p, Some(o)) => (p, Some(o))
+      case (p, None) =>
+        state match {
+          case Halted  => (p, None)
+          case Blocked => (p, None)
+          case Running => p.step.runToOutput
+        }
+    }
+
   def feed(i: Long): Program =
     copy(input = input.enqueue(i), state = state match {
       case Blocked => Running
@@ -171,6 +183,8 @@ object Program {
     Program(line.split(",").map(_.toLong).zipWithIndex.map { case (a, i) => (i.toLong, a) }.toMap)
 
   def feedAndRunS(input: Long): State[Program, Unit] = State(p => (p.feed(input).run, ()))
+  val runS: State[Program, Unit]                     = State(p => (p.run, ()))
+  val runToOutputS: State[Program, Option[Long]]     = State(_.runToOutput)
   val extractOutputS: State[Program, Option[Long]]   = State(_.extractOutput)
 
   implicit val showProgram: Show[Program] = {
