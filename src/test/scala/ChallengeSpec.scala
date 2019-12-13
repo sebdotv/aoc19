@@ -5,7 +5,7 @@ import aoc.trigo.Coord
 import cats.implicits._
 import org.scalatest.Inside.inside
 import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.must._
+import org.scalatest.matchers.must.Matchers
 
 import scala.collection.immutable.Queue
 
@@ -551,6 +551,10 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
   it should "do d13" in {
     import d13._
     val input = ArcadeCabinet(Program.parse(loadLine("input/13.txt")))
-    Part1.run(input).screen.painted.values.filter(_ === TileType.Block).size mustBe 205
+    // p1
+    Part1.countBlocks(input) mustBe 205
+    // p2
+    val a = input.copy(p = input.p.write(0, 2))
+    Part2.run(a).screen.segmentDisplay mustBe Some(10292)
   }
 }
