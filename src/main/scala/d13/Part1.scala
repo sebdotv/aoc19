@@ -1,11 +1,12 @@
 package d13
 
 import aoc.intcode.Program
-import aoc.intcode.Program.ProgramState.Halted
+import aoc.intcode.Program.ProgramState.Running
 import aoc.intcode.Program._
 import aoc.trigo.Coord
 import cats.data.State
 import cats.implicits._
+import d13.TileType._
 
 import scala.annotation.tailrec
 
@@ -21,6 +22,20 @@ object TileType {
 }
 
 case class Screen(painted: Map[Coord, TileType] = Map.empty, segmentDisplay: Option[Int] = None) {
+  def dump: String =
+    (s"score: ${segmentDisplay.getOrElse("?")}" :: renderTiles).mkString("\n")
+
+  def renderTiles: List[String] = {
+    val (minX, minY, maxX, maxY) = Coord.computeRange(painted.keys.toList)
+    (for (y <- minY to maxY) yield (for (x <- minX to maxX) yield painted.getOrElse(Coord(x, y), Empty) match {
+      case Empty  => ' '
+      case Wall   => '#'
+      case Block  => '@'
+      case Paddle => '='
+      case Ball   => 'o'
+    }).mkString).toList
+  }
+
   def set(coord: Coord, value: Int): Screen =
     coord match {
       case Coord(-1, 0) => copy(segmentDisplay = Some(value))
