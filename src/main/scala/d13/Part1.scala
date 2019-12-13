@@ -20,12 +20,17 @@ object TileType {
   def fromId(id: Int) = values.find(_.id === id).get
 }
 
-case class Screen(painted: Map[Coord, TileType] = Map.empty) {
-  def paintTile(coord: Coord, tileType: TileType): Screen =
-    copy(painted = tileType match {
-      case TileType.Empty => painted - coord
-      case _              => painted + (coord -> tileType)
-    })
+case class Screen(painted: Map[Coord, TileType] = Map.empty, segmentDisplay: Option[Int] = None) {
+  def set(coord: Coord, value: Int): Screen =
+    coord match {
+      case Coord(-1, 0) => copy(segmentDisplay = Some(value))
+      case _ =>
+        val tileType = TileType.fromId(value)
+        copy(painted = tileType match {
+          case TileType.Empty => painted - coord
+          case _              => painted + (coord -> tileType)
+        })
+    }
 }
 
 case class ArcadeCabinet(p: Program, screen: Screen = Screen()) {
@@ -36,11 +41,11 @@ case class ArcadeCabinet(p: Program, screen: Screen = Screen()) {
         y      <- runToOutputS
         tileId <- runToOutputS
       } yield (x, y, tileId) match {
-        case (Some(x), Some(y), Some(tileId)) =>
-          screen.paintTile(Coord(x.toInt, y.toInt), TileType.fromId(tileId.toInt))
+        case (Some(x), Some(y), Some(value)) =>
+          screen.set(Coord(x.toInt, y.toInt), value.toInt)
         case (None, None, None) =>
           screen
-        case _ => throw new IllegalStateException()
+        case _ => throw new IllegalStateException
       }
     val (up, us) = state.run(p).value
     ArcadeCabinet(up, us)
