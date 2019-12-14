@@ -30,6 +30,8 @@ case class SolverState(balances: Map[String, Long] = Map.empty) {
     copy(balances = merge(balances :: ms.toList))
   def addWanted(chemical: String, n: Long = 1): SolverState =
     addBalances(Map(chemical -> -n))
+  def addCargo(chemical: String, n: Long = 1): SolverState =
+    addBalances(Map(chemical -> n))
   def apply(r: Reaction, n: Long = 1): SolverState = {
     require(n > 0, n)
     addBalances(
@@ -49,7 +51,7 @@ case class SolverState(balances: Map[String, Long] = Map.empty) {
 }
 
 case class Solver1(f: NanoFactory, state: SolverState = SolverState(), done: Boolean = false) {
-  def addWanted(chemical: String, n: Long = 1) = copy(state = state.addWanted(chemical, n))
+  def addWanted(chemical: String, n: Long = 1) = copy(state = state.addWanted(chemical, n), done = false)
   @tailrec
   final def run: Solver1 =
     if (done) this else step.run
@@ -61,7 +63,7 @@ case class Solver1(f: NanoFactory, state: SolverState = SolverState(), done: Boo
     fits match {
       case Nil => copy(done = true)
       case _ =>
-        val r = fits.minBy(_._2)._1
+        val r          = fits.minBy(_._2)._1
         val q          = state.balances(r.out)
         val multiplier = (-q + r.n - 1) / r.n
         copy(state = state.apply(r, multiplier))
