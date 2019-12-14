@@ -2,6 +2,7 @@ import TestUtils._
 import aoc.intcode.Program.ProgramState.Halted
 import aoc.intcode._
 import aoc.trigo.Coord
+import cats.data.State
 import cats.implicits._
 import org.scalatest.Inside.inside
 import org.scalatest.flatspec.AnyFlatSpec
@@ -556,5 +557,21 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
     // p2
     val a = input.copy(p = input.p.write(0, 2))
     Part2.run(a).screen.segmentDisplay mustBe Some(10292)
+  }
+
+  it should "do d14" in {
+    import d14._
+    inside(Part1.solve("""
+          |10 ORE => 10 A
+          |1 ORE => 1 B
+          |7 A, 1 B => 1 C
+          |7 A, 1 C => 1 D
+          |7 A, 1 D => 1 E
+          |7 A, 1 E => 1 FUEL
+          |""".stripMargin.splitLines)) {
+      case (ores, byProducts) =>
+        ores mustBe -31
+        byProducts mustBe Map("A" -> 2)
+    }
   }
 }
