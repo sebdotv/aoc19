@@ -4,7 +4,7 @@ import cats.implicits._
 
 import scala.annotation.tailrec
 
-case class Reaction(n: Int, out: String, in: Map[String, Int])
+case class Reaction(n: Long, out: String, in: Map[String, Long])
 object Reaction {
   private val ReactionRe   = """(.*) => (.*)""".r
   private val ChemicalQtRe = """(\d+) (\w+)""".r
@@ -19,25 +19,28 @@ object Reaction {
     Reaction(n, out, in)
   }
 
-  def parseChemicalQt(s: String): (Int, String) = {
+  def parseChemicalQt(s: String): (Long, String) = {
     val ChemicalQtRe(n, chemical) = s
-    (n.toInt, chemical)
+    (n.toLong, chemical)
   }
 }
 
-case class SolverState(balances: Map[String, Int] = Map.empty) {
-  def addBalances(ms: Map[String, Int]*): SolverState =
+case class SolverState(balances: Map[String, Long] = Map.empty) {
+  def addBalances(ms: Map[String, Long]*): SolverState =
     copy(balances = merge(balances :: ms.toList))
-  def addWanted(n: Int, chemical: String): SolverState =
+  def addWanted(chemical: String, n: Long = 1): SolverState =
     addBalances(Map(chemical -> -n))
-  def apply(r: Reaction, n: Int = 1): SolverState =
+  def apply(r: Reaction, n: Long = 1): SolverState = {
+    require(n > 0, n)
     addBalances(
       r.in.mapValues(_ * -1 * n),
       Map(r.out -> r.n * n)
     )
-  private def merge(ms: List[Map[String, Int]]): Map[String, Int] =
+  }
+
+  private def merge(ms: List[Map[String, Long]]): Map[String, Long] =
     ms.map(_.toSeq)
-      .foldRight(Seq.empty[(String, Int)])(_ ++ _)
+      .foldRight(Seq.empty[(String, Long)])(_ ++ _)
       .groupBy(_._1)
       .mapValues(_.map(_._2).sum)
       .filterNot(_._2 === 0)
@@ -46,7 +49,7 @@ case class SolverState(balances: Map[String, Int] = Map.empty) {
 }
 
 case class Solver1(f: NanoFactory, state: SolverState = SolverState(), done: Boolean = false) {
-  def addWanted(chemical: String, n: Int = 1) = copy(state = state.addWanted(n, chemical))
+  def addWanted(chemical: String, n: Long = 1) = copy(state = state.addWanted(chemical, n))
   @tailrec
   final def run: Solver1 =
     if (done) this else step.run
@@ -74,9 +77,9 @@ object NanoFactory {
 }
 
 object Part1 {
-  def solve(lines: List[String]): (Int, Map[String, Int]) =
+  def solve(lines: List[String]): (Long, Map[String, Long]) =
     solve(NanoFactory.parse(lines))
-  def solve(f: NanoFactory): (Int, Map[String, Int]) = {
+  def solve(f: NanoFactory): (Long, Map[String, Long]) = {
     val m = Solver1(f).addWanted("FUEL").run.state.balances
     (-m("ORE"), m - "ORE")
   }
