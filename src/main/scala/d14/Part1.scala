@@ -74,9 +74,10 @@ object NanoFactory {
 }
 
 object Part1 {
-  def solve(lines: List[String]): (Int, Map[String, Int]) = {
-    val f = NanoFactory.parse(lines)
+  def solve(lines: List[String]): (Int, Map[String, Int]) =
+    solve(NanoFactory.parse(lines))
+  def solve(f: NanoFactory): (Int, Map[String, Int]) = {
     val m = Solver1(f).addWanted("FUEL").run.state.balances
-    (m("ORE"), m - "ORE")
+    (-m("ORE"), m - "ORE")
   }
 }
