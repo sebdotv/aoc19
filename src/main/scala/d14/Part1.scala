@@ -62,7 +62,9 @@ case class Solver1(f: NanoFactory, state: SolverState = SolverState(), done: Boo
       case Nil => copy(done = true)
       case _ =>
         val r = fits.minBy(_._2)._1
-        copy(state = state.apply(r))
+        val q          = state.balances(r.out)
+        val multiplier = (-q + r.n - 1) / r.n
+        copy(state = state.apply(r, multiplier))
     }
   }
   override def toString: String = state.toString
