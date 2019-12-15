@@ -3,11 +3,12 @@ package d15
 import aoc.intcode.Program
 import aoc.intcode.Program._
 import aoc.trigo.Coord
-import d15.Cell.Empty
+import cats.Eq
 import cats.implicits._
+import d15.Cell.Empty
+import d15.ControllerState.{Done, OxygenFound, Running}
 
 import scala.annotation.tailrec
-import scala.collection.immutable.Queue
 
 sealed trait Cell
 object Cell {
@@ -53,25 +54,30 @@ case class AreaMap(explored: Map[Coord, Cell] = Map.empty) {
   }
 }
 
-case class Controller(p: Program, map: AreaMap, pos: Coord, path: List[Movement] = Nil, done: Boolean = false) {
+sealed trait ControllerState
+object ControllerState {
+  object Running     extends ControllerState
+  object OxygenFound extends ControllerState
+  object Done        extends ControllerState
+  implicit val eqControllerState: Eq[ControllerState] = Eq.fromUniversalEquals
+}
+
+case class Controller(p: Program, map: AreaMap, pos: Coord, path: List[Movement] = Nil, state: ControllerState = Running) {
   import Cell._
 
-  def dump = map.dump(pos.some)
-
+  def dump   = map.dump(pos.some)
   def around = map.around(pos)
 
   def backtrack: Controller =
     path match {
       case x :: xs =>
-        val m = x.reverse
-//        println(s"backtrack: $x -> $m")
-        step(m)
+        move(x.reverse)
           .copy(path = xs) // override path, ignoring backtrack
       case Nil =>
-        copy(done = true)
+        copy(state = Done)
     }
 
-  def step(m: Movement): Controller = {
+  def move(m: Movement): Controller = {
     val state =
       for {
         _       <- feedS(m.command.toLong)
@@ -80,16 +86,20 @@ case class Controller(p: Program, map: AreaMap, pos: Coord, path: List[Movement]
     val (pU, outputO) = state.run(p).value
     outputO match {
       case Some(output) =>
-        val (cell, moved) =
+        val (cell, moved, stateU) =
           output match {
-            case 0 => (Wall, false)
-            case 1 => (Empty, true)
-            case 2 =>
-              println(path.size + 1)
-              (Oxygen, true)
+            case 0 => (Wall, false, Running)
+            case 1 => (Empty, true, Running)
+            case 2 => (Oxygen, true, OxygenFound)
           }
         val targetPos = pos + m.v
-        copy(map = map.add(targetPos, cell), p = pU, pos = if (moved) targetPos else pos, path = if (moved) m :: path else path)
+        copy(
+          map = map.add(targetPos, cell),
+          p = pU,
+          pos = if (moved) targetPos else pos,
+          path = if (moved) m :: path else path,
+          state = stateU
+        )
       case None =>
         copy(p = pU)
     }
@@ -103,23 +113,11 @@ object Controller {
 }
 
 object Part1 {
-  import Cell._
-
   @tailrec
-  def loop(c: Controller): Controller = {
-    //      println
-    if (c.done) {
-      println(c.dump)
-      c
-    } else {
-      //        println(c.dump)
-      //        //      println(c.map.explored.size)
+  def runUntil(c: Controller, state: ControllerState): Controller =
+    if (c.state === state) c
+    else {
       val unexplored = c.around.collect { case (m, None) => m }.headOption
-      //        println(unexplored)
-      loop(unexplored.map(c.step).getOrElse(c.backtrack))
+      runUntil(unexplored.map(c.move).getOrElse(c.backtrack), state)
     }
-  }
-
-  def x(p: Program): Controller =
-    loop(Controller(p))
 }
