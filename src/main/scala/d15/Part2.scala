@@ -1,7 +1,8 @@
 package d15
 
 import aoc.trigo.Coord
-import d15.Cell.{Empty, Oxygen}
+import cats.implicits._
+import d15.Cell._
 
 import scala.annotation.tailrec
 
@@ -13,7 +14,7 @@ case class Sim(map: AreaMap, frontier: List[Coord], minutes: Int = 0) {
         neighbor <- map.around(p)
         m        = neighbor._1
         cellO    = neighbor._2
-        if cellO == Some(Empty)
+        if cellO === Some(Empty)
       } yield p -> m
     Sim(
       map = map.add(for ((p, m) <- growth) yield (p + m.v) -> Oxygen),
@@ -29,7 +30,7 @@ case class Sim(map: AreaMap, frontier: List[Coord], minutes: Int = 0) {
 
 object Part2 {
   def result(map: AreaMap): Int = {
-    val sim = Sim(map, map.explored.collect { case (k, v) if v == Oxygen => k }.toList)
+    val sim = Sim(map, map.explored.collect { case (k, v) if v === Oxygen => k }.toList)
     sim.run.minutes - 1 // simulation stops when nothing was done, so 1 minute after the area was filled
   }
 }

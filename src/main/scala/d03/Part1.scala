@@ -1,6 +1,7 @@
 package d03
 
 import aoc.trigo.Coord
+import cats.implicits._
 
 import scala.annotation.tailrec
 
@@ -42,7 +43,7 @@ object Part1 {
       }
       @tailrec
       def it(n: Int, p: Coord, acc: List[Coord]): List[Coord] =
-        if (n == 0) acc
+        if (n === 0) acc
         else {
           val upos = p + dir
           it(n - 1, upos, upos :: acc)

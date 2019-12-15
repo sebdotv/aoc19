@@ -6,7 +6,7 @@ import aoc.trigo.Coord
 import cats.Eq
 import cats.implicits._
 import d15.Cell.Empty
-import d15.ControllerState.{Done, OxygenFound, Running}
+import d15.ControllerState._
 
 import scala.annotation.tailrec
 
@@ -15,6 +15,7 @@ object Cell {
   object Empty  extends Cell
   object Wall   extends Cell
   object Oxygen extends Cell
+  implicit val eqCell: Eq[Cell] = Eq.fromUniversalEquals
 }
 
 sealed case class Movement(command: Int, v: Coord) {
