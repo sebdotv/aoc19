@@ -182,6 +182,7 @@ object Program {
   def parse(line: String): Program =
     Program(line.split(",").map(_.toLong).zipWithIndex.map { case (a, i) => (i.toLong, a) }.toMap)
 
+  def feedS(input: Long): State[Program, Unit]       = State(p => (p.feed(input), ()))
   def feedAndRunS(input: Long): State[Program, Unit] = State(p => (p.feed(input).run, ()))
   val runS: State[Program, Unit]                     = State(p => (p.run, ()))
   val runToOutputS: State[Program, Option[Long]]     = State(_.runToOutput)

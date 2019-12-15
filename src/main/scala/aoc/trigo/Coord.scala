@@ -7,6 +7,7 @@ import scala.annotation.tailrec
 
 case class Coord(x: Int, y: Int) {
   import Coord._
+  def unary_- : Coord        = Coord(-x, -y)
   def +(other: Coord): Coord = Coord(x + other.x, y + other.y)
   def -(other: Coord): Coord = Coord(x - other.x, y - other.y)
   def /(d: Int): Coord = {

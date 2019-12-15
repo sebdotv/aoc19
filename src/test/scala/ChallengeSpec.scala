@@ -654,4 +654,9 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
     // p2 input
     Part2.maxFuel(504284, Solver1(input, SolverState().addCargo("ORE", ores))) mustBe 2690795
   }
+
+  it should "do 15" in {
+    import d15._
+    Part1.x(Program.parse(loadLine("input/15.txt")))
+  }
 }
