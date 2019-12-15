@@ -657,6 +657,7 @@ class ChallengeSpec extends AnyFlatSpec with Matchers {
 
   it should "do 15" in {
     import d15._
-    Part1.x(Program.parse(loadLine("input/15.txt")))
+    val c = Part1.x(Program.parse(loadLine("input/15.txt")))
+    Part2.result(c.map) mustBe 340
   }
 }

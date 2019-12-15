@@ -11,9 +11,9 @@ import scala.collection.immutable.Queue
 
 sealed trait Cell
 object Cell {
-  object Empty        extends Cell
-  object Wall         extends Cell
-  object OxygenSystem extends Cell
+  object Empty  extends Cell
+  object Wall   extends Cell
+  object Oxygen extends Cell
 }
 
 sealed case class Movement(command: Int, v: Coord) {
@@ -38,15 +38,16 @@ object Movement {
 
 case class AreaMap(explored: Map[Coord, Cell] = Map.empty) {
   import Cell._
-  def add(pos: Coord, cell: Cell): AreaMap = copy(explored = explored + (pos -> cell))
+  def add(pos: Coord, cell: Cell): AreaMap        = copy(explored = explored + (pos -> cell))
+  def add(mappings: List[(Coord, Cell)]): AreaMap = copy(explored = explored ++ mappings)
   def around(pos: Coord): List[(Movement, Option[Cell])] =
     for (m <- Movement.clockwise) yield m -> explored.get(pos + m.v)
-  def dump(droid: Coord): String = {
+  def dump(droidO: Option[Coord] = None): String = {
     val chars = (explored.mapValues {
-      case Empty        => '.'
-      case Wall         => '#'
-      case OxygenSystem => 'X'
-    } + (Coord.zero -> 'O') + (droid -> 'D')).withDefaultValue(' ')
+      case Empty  => '.'
+      case Wall   => '#'
+      case Oxygen => 'X'
+    } ++ droidO.map(d => Map(d -> 'D')).getOrElse(Map.empty)).withDefaultValue(' ')
     val (minX, minY, maxX, maxY) = Coord.computeRange(chars.keys.toList)
     (for (y <- maxY to minY by -1) yield (for (x <- minX to maxX) yield chars(Coord(x, y))).mkString).mkString("\n")
   }
@@ -55,7 +56,7 @@ case class AreaMap(explored: Map[Coord, Cell] = Map.empty) {
 case class Controller(p: Program, map: AreaMap, pos: Coord, path: List[Movement] = Nil, done: Boolean = false) {
   import Cell._
 
-  def dump = map.dump(pos)
+  def dump = map.dump(pos.some)
 
   def around = map.around(pos)
 
@@ -85,7 +86,7 @@ case class Controller(p: Program, map: AreaMap, pos: Coord, path: List[Movement]
             case 1 => (Empty, true)
             case 2 =>
               println(path.size + 1)
-              (OxygenSystem, true)
+              (Oxygen, true)
           }
         val targetPos = pos + m.v
         copy(map = map.add(targetPos, cell), p = pU, pos = if (moved) targetPos else pos, path = if (moved) m :: path else path)
@@ -103,23 +104,22 @@ object Controller {
 
 object Part1 {
   import Cell._
-  def x(p: Program) = {
-    val c = Controller(p)
-    loop(c)
 
-    @tailrec
-    def loop(c: Controller): Controller = {
-//      println
-      if (c.done) {
-        println(c.dump)
-        c
-      } else {
-//        println(c.dump)
-//        //      println(c.map.explored.size)
-        val unexplored = c.around.collect { case (m, None) => m }.headOption
-//        println(unexplored)
-        loop(unexplored.map(c.step).getOrElse(c.backtrack))
-      }
+  @tailrec
+  def loop(c: Controller): Controller = {
+    //      println
+    if (c.done) {
+      println(c.dump)
+      c
+    } else {
+      //        println(c.dump)
+      //        //      println(c.map.explored.size)
+      val unexplored = c.around.collect { case (m, None) => m }.headOption
+      //        println(unexplored)
+      loop(unexplored.map(c.step).getOrElse(c.backtrack))
     }
   }
+
+  def x(p: Program): Controller =
+    loop(Controller(p))
 }
